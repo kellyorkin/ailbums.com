@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>AIlbums</title>
+<meta name="description" content="Already enabled for your organization." />
+
+<!--
+  AIlbums — the application that was always in the menu.
+  Aesthetic direction: M365-native, deadpan-enterprise. The joke is that it looks so
+  provisioned you assume IT deployed it in 2019 and lost the ticket. Font stack leads with
+  Segoe UI on purpose: on a Windows machine this renders in the actual system face and
+  completes the illusion. The wit lives in the copy; the design stays genuinely clean-corporate.
+  Family resemblance to the rest of the constellation is carried by the footer voice, not the color.
+-->
+
+<style>
+  :root {
+    /* Fluent-leaning neutrals + AIlbums' own green accent (one var; repalette freely) */
+    --canvas:      #faf9f8;
+    --surface:     #ffffff;
+    --line:        #edebe9;
+    --ink:         #201f1e;
+    --ink-soft:    #605e5c;
+    --ink-faint:   #8a8886;
+
+    --accent:      #2f7a4d;
+    --accent-deep: #245c3a;
+    --accent-tint: #e8f2ec;
+
+    --shadow-card: 0 1.6px 3.6px rgba(0,0,0,0.10), 0 0.3px 0.9px rgba(0,0,0,0.07);
+    --shadow-tile: 0 12px 28px rgba(36, 92, 58, 0.28), 0 2px 6px rgba(0,0,0,0.12);
+
+    --font: "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    background: var(--canvas);
+    color: var(--ink);
+    font-family: var(--font);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    line-height: 1.5;
+  }
+
+  a { color: inherit; }
+
+  .wrap {
+    max-width: 1080px;
+    margin: 0 auto;
+    padding: 0 clamp(1.25rem, 5vw, 3rem);
+  }
+
+  /* ====== TOP STRIP — generic app chrome, deliberately not anyone's trademark ====== */
+
+  .topbar {
+    background: var(--surface);
+    border-bottom: 1px solid var(--line);
+  }
+
+  .topbar-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 48px;
+  }
+
+  .topbar-left {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+  }
+
+  .dot-grid { display: grid; grid-template-columns: repeat(3, 4px); gap: 3px; }
+  .dot-grid span { width: 4px; height: 4px; border-radius: 1px; background: var(--ink-faint); }
+
+  .topbar-left .mark-ai { color: var(--accent); }
+
+  .topbar-right {
+    font-size: 0.78rem;
+    color: var(--ink-faint);
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .topbar-right .help {
+    width: 18px; height: 18px; border-radius: 50%;
+    border: 1px solid var(--ink-faint);
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 0.7rem; font-style: italic;
+  }
+
+  /* ====== HERO ====== */
+
+  .hero {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: clamp(2rem, 5vw, 3.5rem);
+    padding: clamp(2.5rem, 7vw, 5rem) 0 clamp(1.5rem, 4vw, 2.5rem);
+    align-items: center;
+  }
+
+  @media (min-width: 760px) {
+    .hero { grid-template-columns: auto 1fr; }
+  }
+
+  /* The app tile, rendered in CSS so it stays crisp at any size */
+  .tile-stage {
+    display: flex;
+    justify-content: center;
+  }
+
+  .app-tile { position: relative; width: 132px; height: 132px; }
+
+  .tile-page {
+    position: absolute;
+    top: 12px;
+    bottom: 12px;
+    border-radius: 16px;
+  }
+  .tile-page-1 { right: -12px; width: 120px; background: #6aa886; z-index: 1; }
+  .tile-page-2 { right: -22px; width: 120px; background: #a9cbb8; z-index: 0; }
+
+  .tile-face {
+    position: absolute;
+    inset: 0;
+    border-radius: 20px;
+    background: linear-gradient(150deg, var(--accent), var(--accent-deep));
+    box-shadow: var(--shadow-tile);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2;
+  }
+  .tile-glyph {
+    color: #ffffff;
+    font-weight: 700;
+    font-size: 3.4rem;
+    letter-spacing: -0.03em;
+  }
+  .tile-glyph b { font-weight: 700; }
+  /* a faint divider sliver between A I, echoing an album spine */
+  .tile-glyph i {
+    font-style: normal;
+    display: inline-block;
+    width: 3px;
+    height: 2.6rem;
+    background: rgba(255,255,255,0.55);
+    border-radius: 2px;
+    margin: 0 1px;
+    transform: translateY(6px);
+  }
+
+  .hero-copy { max-width: 34rem; }
+
+  .eyebrow {
+    display: inline-block;
+    font-size: 0.72rem;
+    letter-spacing: 0.06em;
+    color: var(--accent-deep);
+    background: var(--accent-tint);
+    border-radius: 3px;
+    padding: 0.28rem 0.6rem;
+    font-weight: 600;
+    margin-bottom: 1.1rem;
+  }
+
+  .wordmark {
+    font-size: clamp(2.4rem, 6vw, 3.4rem);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    line-height: 1.05;
+    display: flex;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: 0 0.1rem;
+  }
+  .wordmark .ai  { color: var(--accent); }
+  .wordmark .rest{ color: var(--ink); }
+  .wordmark .tld { color: var(--ink-faint); font-weight: 600; }
+
+  .badge {
+    align-self: center;
+    font-size: 0.62rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    color: var(--accent-deep);
+    border: 1px solid var(--accent);
+    border-radius: 999px;
+    padding: 0.18rem 0.55rem;
+    margin-left: 0.6rem;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+
+  .lede {
+    font-size: 1.15rem;
+    color: var(--ink);
+    margin: 1.1rem 0 0.5rem;
+  }
+  .subde {
+    font-size: 0.98rem;
+    color: var(--ink-soft);
+    margin-bottom: 1.6rem;
+  }
+
+  .actions { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
+
+  .btn {
+    font-family: var(--font);
+    font-size: 0.92rem;
+    font-weight: 600;
+    border-radius: 4px;
+    padding: 0.6rem 1.4rem;
+    border: 1px solid transparent;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+    transition: background 0.15s ease, border-color 0.15s ease;
+  }
+  .btn-primary { background: var(--accent); color: #fff; }
+  .btn-primary:hover { background: var(--accent-deep); }
+  .btn-ghost { background: transparent; color: var(--ink); border-color: var(--ink-faint); }
+  .btn-ghost:hover { border-color: var(--ink-soft); }
+
+  .micro {
+    font-size: 0.8rem;
+    color: var(--ink-faint);
+    margin-top: 1rem;
+  }
+  .micro .star { color: var(--ink-faint); }
+
+  /* ====== NOTICE BAR — the Fluent "your admin did this" message strip ====== */
+
+  .notice {
+    background: #f3f2f1;
+    border-left: 3px solid var(--accent);
+    border-radius: 2px;
+    padding: 0.7rem 1rem;
+    margin: 0.5rem 0 2.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    font-size: 0.86rem;
+    color: var(--ink-soft);
+  }
+  .notice svg { flex-shrink: 0; }
+
+  /* ====== FEATURE CARDS ====== */
+
+  .features {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    padding-bottom: 2.75rem;
+  }
+  @media (min-width: 720px) { .features { grid-template-columns: repeat(3, 1fr); } }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    box-shadow: var(--shadow-card);
+    padding: 1.4rem 1.5rem 1.5rem;
+  }
+  .card h3 {
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .card h3 .pip { width: 8px; height: 8px; border-radius: 2px; background: var(--accent); }
+  .card p { font-size: 0.9rem; color: var(--ink-soft); }
+
+  /* ====== RESIDENT — Spec Locator, the actual tool living here ====== */
+
+  .resident {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    box-shadow: var(--shadow-card);
+    padding: clamp(1.75rem, 4vw, 2.75rem);
+    margin-bottom: 3rem;
+    display: grid;
+    gap: 1rem;
+    max-width: 46rem;
+  }
+  .resident .r-eyebrow {
+    font-size: 0.72rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    font-weight: 600;
+  }
+  .resident h2 {
+    font-size: clamp(1.5rem, 3.5vw, 2rem);
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    display: flex;
+    align-items: baseline;
+    gap: 0.7rem;
+    flex-wrap: wrap;
+  }
+  .resident h2 .ver {
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: var(--ink-faint);
+    letter-spacing: 0.04em;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    padding: 0.12rem 0.55rem;
+  }
+  .resident p { font-size: 0.98rem; color: var(--ink-soft); max-width: 34rem; }
+  .resident .r-dry { color: var(--ink-faint); font-size: 0.9rem; }
+  .resident .actions { margin-top: 0.4rem; }
+
+  /* ====== FOOTER — the one place the family resemblance lives ====== */
+
+  footer {
+    border-top: 1px solid var(--line);
+    background: var(--surface);
+    color: var(--ink-faint);
+    font-size: 0.78rem;
+  }
+  .footer-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0.4rem;
+    padding: 1.5rem 0 0.75rem;
+  }
+  @media (min-width: 720px) {
+    .footer-grid { grid-template-columns: 1fr auto; align-items: center; }
+  }
+  .footer-grid a { color: var(--ink-soft); text-decoration: none; border-bottom: 1px dotted transparent; }
+  .footer-grid a:hover { color: var(--accent); border-bottom-color: currentColor; }
+  .footer-meta { letter-spacing: 0.02em; }
+  .footer-right { color: var(--ink-faint); }
+  @media (min-width: 720px) { .footer-right { text-align: right; } }
+  /* Family tagline — the standard Indifferencer-universe sign-off */
+  .footer-fineprint {
+    padding-bottom: 1.5rem;
+    color: var(--ink-faint);
+    font-size: 0.74rem;
+    letter-spacing: 0.02em;
+  }
+
+  /* ====== ENTRANCE — quick, restrained, corporate ====== */
+  @keyframes rise {
+    from { opacity: 0; transform: translateY(6px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .topbar    { animation: rise 0.4s ease-out both; }
+  .tile-stage{ animation: rise 0.5s ease-out 0.10s both; }
+  .hero-copy { animation: rise 0.5s ease-out 0.18s both; }
+  .notice    { animation: rise 0.5s ease-out 0.28s both; }
+  .features  { animation: rise 0.5s ease-out 0.36s both; }
+  .resident  { animation: rise 0.5s ease-out 0.44s both; }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; transition: none !important; }
+  }
+</style>
+</head>
+<body>
+
+  <!-- Top strip: evokes app chrome without copying anyone's actual mark -->
+  <div class="topbar">
+    <div class="wrap topbar-row">
+      <div class="topbar-left">
+        <span class="dot-grid" aria-hidden="true">
+          <span></span><span></span><span></span>
+          <span></span><span></span><span></span>
+          <span></span><span></span><span></span>
+        </span>
+        <span><span class="mark-ai">AI</span>lbums</span>
+      </div>
+      <div class="topbar-right">
+        <span>Your organization</span>
+        <span class="help" aria-hidden="true">i</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="wrap">
+
+    <!-- HERO -->
+    <section class="hero">
+      <div class="tile-stage">
+        <div class="app-tile" aria-hidden="true">
+          <div class="tile-page tile-page-2"></div>
+          <div class="tile-page tile-page-1"></div>
+          <div class="tile-face">
+            <span class="tile-glyph"><b>A</b><i></i><b>I</b></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="hero-copy">
+        <span class="eyebrow">Already enabled for your organization</span>
+
+        <h1 class="wordmark">
+          <span class="ai">AI</span><span class="rest">lbums</span><span class="tld">.com</span>
+          <span class="badge">Now with AI<span class="star">*</span></span>
+        </h1>
+
+        <p class="lede">Your organization&rsquo;s home for the small tools that keep work moving.</p>
+        <p class="subde">Centralized, governed, and available to anyone with the appropriate permissions. You may already be using it.</p>
+
+        <div class="actions">
+          <a class="btn btn-primary" href="#spec-locator">Open</a>
+          <a class="btn btn-ghost" href="https://indifferencer.com">Learn more</a>
+        </div>
+
+        <p class="micro"><span class="star">*</span> AI refers to the spelling.</p>
+      </div>
+    </section>
+
+    <!-- NOTICE BAR -->
+    <div class="notice">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+        <circle cx="8" cy="8" r="7" stroke="#2f7a4d" stroke-width="1.4"/>
+        <circle cx="8" cy="5" r="0.9" fill="#2f7a4d"/>
+        <rect x="7.3" y="7" width="1.4" height="4.4" rx="0.7" fill="#2f7a4d"/>
+      </svg>
+      <span>This application was enabled for your organization by your administrator. No action is required.</span>
+    </div>
+
+    <!-- FEATURES -->
+    <section class="features">
+      <div class="card">
+        <h3><span class="pip"></span>Centralized</h3>
+        <p>Everything lives in one place. Discoverable by anyone with the appropriate permissions, and a few without.</p>
+      </div>
+      <div class="card">
+        <h3><span class="pip"></span>Compliant</h3>
+        <p>Aligned with the standards your organization has not yet been asked to name. Audit-ready in principle.</p>
+      </div>
+      <div class="card">
+        <h3><span class="pip"></span>Always available</h3>
+        <p>Provisioned at some point. No one has needed to check since, which is generally taken as a good sign.</p>
+      </div>
+    </section>
+
+    <!-- RESIDENT: SpecLoc (formally Spec Locator). The Sherlock homophone is deliberate;
+         the wink lives in one line — "Elementary specification retrieval." — and nowhere else. -->
+    <section class="resident" id="spec-locator">
+      <span class="r-eyebrow">Included in your plan</span>
+      <h2>SpecLoc <span class="ver">Version 1.0</span></h2>
+      <p class="r-dry">Elementary specification retrieval.</p>
+      <p>SpecLoc (formally Spec Locator) does one quiet thing well. It takes a specification that already exists and delivers it intact to wherever the work happens. No screenshot. No copy-paste. No data quietly dying on the way to the ticket.</p>
+      <p class="r-dry">It does not require a meeting.</p>
+      <div class="actions">
+        <a class="btn btn-primary" href="#">Open SpecLoc</a>
+        <a class="btn btn-ghost" href="#">Documentation</a>
+      </div>
+    </section>
+
+  </div>
+
+  <!-- FOOTER: the family resemblance lives here, in the voice, not the palette -->
+  <footer>
+    <div class="wrap footer-grid">
+      <span class="footer-meta">A subsidiary of <a href="https://indifferencer.com">Indifferencer, Inc.</a> Part of the Indifferencer family of products. Some settings may have been configured on your behalf.</span>
+      <span class="footer-right">AIlbums &middot; Version 1.0 &middot; Build 16.0.17328 &middot; Your administrator manages updates.</span>
+    </div>
+    <div class="wrap">
+      <p class="footer-fineprint">No humans were harmed in the production of this site. No humans were consulted.</p>
+    </div>
+  </footer>
+
+</body>
+</html>
