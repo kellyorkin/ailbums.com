@@ -323,6 +323,82 @@
   .resident .r-dry { color: var(--ink-faint); font-size: 0.9rem; }
   .resident .actions { margin-top: 0.4rem; }
 
+  /* ====== DIRECTORY — the rest of the family, provisioned alongside SpecLoc ======
+     In-register: single green accent, album-stack tile motif echoing the hero,
+     deadpan one-liners in the resident voice. The recursion closes on the parent. */
+
+  .directory { padding-bottom: 3rem; }
+  .directory .r-eyebrow {
+    font-size: 0.72rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    font-weight: 600;
+    display: block;
+    margin-bottom: 0.5rem;
+  }
+  .dir-head {
+    font-size: clamp(1.5rem, 3.5vw, 2rem);
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    margin-bottom: 0.35rem;
+  }
+  .dir-sub { font-size: 0.98rem; color: var(--ink-soft); max-width: 36rem; margin-bottom: 1.5rem; }
+
+  .app-grid { display: grid; grid-template-columns: 1fr; gap: 1rem; }
+  @media (min-width: 560px) { .app-grid { grid-template-columns: repeat(2, 1fr); } }
+  @media (min-width: 880px) { .app-grid { grid-template-columns: repeat(3, 1fr); } }
+
+  .app {
+    display: flex;
+    gap: 0.85rem;
+    align-items: flex-start;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    box-shadow: var(--shadow-card);
+    padding: 1rem 1.1rem;
+    text-decoration: none;
+    position: relative;
+    transition: box-shadow 0.15s ease, transform 0.15s ease, border-color 0.15s ease;
+  }
+  .app:hover { box-shadow: 0 3.2px 7.2px rgba(0,0,0,0.10), 0 0.6px 1.8px rgba(0,0,0,0.09); transform: translateY(-1px); border-color: var(--line); }
+  .app:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  /* mini album-tile: the hero's motif at 40px */
+  .app-ic { position: relative; flex: 0 0 auto; width: 40px; height: 40px; }
+  .app-ic .stack { position: absolute; top: 4px; bottom: 4px; right: -3px; width: 34px; border-radius: 8px; background: #6aa886; z-index: 1; }
+  .app-ic .face {
+    position: absolute; inset: 0; border-radius: 9px; z-index: 2;
+    background: linear-gradient(150deg, var(--accent), var(--accent-deep));
+    display: grid; place-items: center;
+    box-shadow: 0 4px 10px rgba(36,92,58,0.26);
+  }
+  .app-ic svg { width: 20px; height: 20px; stroke: #fff; fill: none; stroke-width: 1.7; }
+
+  .app-tx { min-width: 0; }
+  .app-nm { font-weight: 600; font-size: 0.98rem; line-height: 1.15; margin-bottom: 0.05rem; }
+  .app-page { display: block; font-size: 0.78rem; font-weight: 600; color: var(--ink-soft); margin-bottom: 0.3rem; }
+  .app-ds { font-size: 0.74rem; color: var(--ink-faint); }
+
+  /* per-app brand colors — the launcher goes rainbow now that each is its own app,
+     while every icon stays an album-stack (still an "album" in AIlbums) */
+  .c-herd   .face{background:linear-gradient(150deg,#1f9d4d,#146b34);} .c-herd   .stack{background:#9bd6b0;}
+  .c-bigtop .face{background:linear-gradient(150deg,#c8296f,#8f1a4e);} .c-bigtop .stack{background:#e79dc0;}
+  .c-quorum .face{background:linear-gradient(150deg,#128a8a,#0c5f5f);} .c-quorum .stack{background:#94d3d3;}
+  .c-find   .face{background:linear-gradient(150deg,#7b4cc4,#553288);} .c-find   .stack{background:#c3aee8;}
+  .c-docket .face{background:linear-gradient(150deg,#c0872a,#8a5f18);} .c-docket .stack{background:#e6c78f;}
+  .c-side   .face{background:linear-gradient(150deg,#d5622a,#9c4418);} .c-side   .stack{background:#f0b48f;}
+  .c-chorus .face{background:linear-gradient(150deg,#2f6fd0,#1f4c96);} .c-chorus .stack{background:#a6c2ee;}
+  .c-parent .face{background:linear-gradient(150deg,#4a4a48,#2f2f2e);} .c-parent .stack{background:#b7b7b4;}
+  .app-flag {
+    display: inline-block; margin-top: 0.5rem;
+    font-size: 0.66rem; letter-spacing: 0.05em; text-transform: uppercase; font-weight: 600;
+    color: var(--accent-deep); border: 1px solid var(--accent); border-radius: 999px; padding: 0.1rem 0.5rem;
+  }
+  .app.current { background: var(--accent-tint); border-color: #cfe4d7; cursor: default; }
+  .app.current .app-nm { color: var(--accent-deep); }
+
   /* ====== FOOTER — the one place the family resemblance lives ====== */
 
   footer {
@@ -366,6 +442,7 @@
   .notice    { animation: rise 0.5s ease-out 0.28s both; }
   .features  { animation: rise 0.5s ease-out 0.36s both; }
   .resident  { animation: rise 0.5s ease-out 0.44s both; }
+  .directory { animation: rise 0.5s ease-out 0.52s both; }
 
   @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after { animation: none !important; transition: none !important; }
@@ -463,6 +540,65 @@
       <div class="actions">
         <a class="btn btn-primary" href="#">Open SpecLoc</a>
         <a class="btn btn-ghost" href="#">Documentation</a>
+      </div>
+    </section>
+
+    <!-- DIRECTORY: the rest of the family. Arrives in the "we did this for you" voice —
+         provisioned alongside SpecLoc, not replacing it. The parent tile closes the loop. -->
+    <section class="directory" id="applications">
+      <span class="r-eyebrow">Also included in your plan</span>
+      <h2 class="dir-head">The Indifferencer family of products</h2>
+      <p class="dir-sub">Provisioned alongside SpecLoc. You may already be using them. No action is required.</p>
+
+      <div class="app-grid">
+
+        <a class="app c-herd" href="https://codedrovers.com">
+          <span class="app-ic"><span class="stack"></span><span class="face"><svg viewBox="0 0 24 24"><path d="M8 7l-4 5 4 5M16 7l4 5-4 5"/></svg></span></span>
+          <span class="app-tx"><span class="app-nm">Herd</span><span class="app-page">CodeDrovers</span><span class="app-ds">Drives data forward. Does not ask where.</span></span>
+        </a>
+
+        <a class="app c-bigtop" href="https://corporatecirc.us">
+          <span class="app-ic"><span class="stack"></span><span class="face"><svg viewBox="0 0 24 24"><path d="M12 3 L21 20 H3 Z"/><path d="M12 3 V20 M7 20 l5-8 5 8"/></svg></span></span>
+          <span class="app-tx"><span class="app-nm">Bigtop</span><span class="app-page">The Corporate Circus</span><span class="app-ds">The Midway does not curate.</span></span>
+        </a>
+
+        <a class="app c-quorum" href="https://indifferencer.com/meetings">
+          <span class="app-ic"><span class="stack"></span><span class="face"><svg viewBox="0 0 24 24"><circle cx="8" cy="9" r="3"/><circle cx="16" cy="9" r="3"/><path d="M3 19c0-3 2.5-4 5-4s5 1 5 4M13 19c0-3 2.5-4 5-4s3 1 3 4"/></svg></span></span>
+          <span class="app-tx"><span class="app-nm">Quorum</span><span class="app-page">Meetings: The Blathering</span><span class="app-ds">0 decisions reached. Provisioned indefinitely.</span></span>
+        </a>
+
+        <a class="app c-find" href="https://indifferencer.com/postmortem">
+          <span class="app-ic"><span class="stack"></span><span class="face"><svg viewBox="0 0 24 24"><path d="M6 3h9l3 3v15H6z"/><path d="M9 11h6M9 15h6"/></svg></span></span>
+          <span class="app-tx"><span class="app-nm">Findings</span><span class="app-page">The Post Mortem</span><span class="app-ds">Root cause pending. Blame assigned.</span></span>
+        </a>
+
+        <a class="app c-docket" href="https://indifferencer.com/courtroom">
+          <span class="app-ic"><span class="stack"></span><span class="face"><svg viewBox="0 0 24 24"><path d="M12 3v18M6 21h12M4 9l5-2 5 2M14 7l5-2 5 2"/></svg></span></span>
+          <span class="app-tx"><span class="app-nm">Docket</span><span class="app-page">The Corporate Courtroom</span><span class="app-ds">Exhibits filed: 100. Verdicts: 0.</span></span>
+        </a>
+
+        <a class="app c-side" href="https://corporatecirc.us/midway">
+          <span class="app-ic"><span class="stack"></span><span class="face"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 3v18M3 12h18"/></svg></span></span>
+          <span class="app-tx"><span class="app-nm">Sideshow</span><span class="app-page">The Midway</span><span class="app-ds">Do not hover unless prepared.</span></span>
+        </a>
+
+        <a class="app c-chorus" href="https://colaudly.com">
+          <span class="app-ic"><span class="stack"></span><span class="face"><svg viewBox="0 0 24 24"><path d="M7 18a4 4 0 0 1 0-8 5 5 0 0 1 9.7-1.5A3.5 3.5 0 0 1 17 18z"/></svg></span></span>
+          <span class="app-tx"><span class="app-nm">Chorus</span><span class="app-page">CoLaudly</span><span class="app-ds">The ensemble. Working under human sign-off.</span></span>
+        </a>
+
+        <!-- the loop up to the parent -->
+        <a class="app c-parent" href="https://indifferencer.com">
+          <span class="app-ic"><span class="stack"></span><span class="face"><svg viewBox="0 0 24 24"><rect x="3" y="8" width="18" height="13" rx="1"/><path d="M8 8V5h8v3M3 13h18"/></svg></span></span>
+          <span class="app-tx"><span class="app-nm">Indifferencer,&nbsp;Inc.&trade;</span><span class="app-page">The parent organization</span><span class="app-ds">Delivers outcomes regardless of intent.</span><span class="app-flag">Parent</span></span>
+        </a>
+
+        <!-- the mirror: you are already here -->
+        <span class="app current" aria-current="page">
+          <span class="app-ic"><span class="stack"></span><span class="face"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="1"/><path d="M4 15 l4-4 3 3 4-5 5 6"/></svg></span></span>
+          <span class="app-tx"><span class="app-nm">AIlbums</span><span class="app-page">This application</span><span class="app-ds">You are here. No action is required.</span><span class="app-flag">Current</span></span>
+        </span>
+
       </div>
     </section>
 
