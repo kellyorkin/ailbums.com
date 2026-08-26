@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Special+Elite&amp;family=Caveat:wght@600;700&amp;display=swap" rel="stylesheet">
+<style>body{margin:0;background:#1c140d;overflow:hidden}a{color:#c9a35f}a:hover{color:#e0bf7d}@keyframes floatUp{to{transform:translateY(-30px);opacity:0}}@keyframes arrive{from{transform:scale(0.3);opacity:0}}</style>
+</helmet>
+<div data-screen-label="The Monthly Queue" style="width:100vw;height:100vh;position:relative;background:#1c140d">
+<div style="position:absolute;left:50%;top:50%;width:1102px;height:600px;transform:{{ stageTransform }}">
+<img src="assets/desk/desk-calendar.png" style="position:absolute;inset:0;width:1102px;height:600px" alt="">
+
+<div style="position:absolute;left:316px;top:91px;width:440px;display:flex;justify-content:space-between;align-items:center;font-family:'Special Elite',monospace;color:#e8ddc2"><span style="font-size:13px;letter-spacing:0.08em">THE MONTHLY QUEUE · {{ monthLabel }}</span><span style="font-size:11px">DAY {{ today }} OF 30 · NEW: {{ monthNew }}</span></div>
+
+<sc-for list="{{ weekdays }}" as="w">
+  <div style="position:absolute;left:{{ w.x }}px;top:143px;width:61px;text-align:center;font-family:'Special Elite',monospace;font-size:8px;letter-spacing:0.12em;color:#7a6a4c">{{ w.d }}</div>
+</sc-for>
+
+<sc-for list="{{ squares }}" as="q" hint-placeholder-count="35">
+  <div style="position:absolute;left:{{ q.x }}px;top:{{ q.y }}px;width:61px;height:55px;border:{{ q.border }};border-radius:3px;background:{{ q.bg }};display:flex;flex-direction:column;padding:2px 5px;box-sizing:border-box;opacity:{{ q.opacity }}">
+    <span style="font-family:'Special Elite',monospace;font-size:{{ q.numSize }}px;color:{{ q.numColor }}">{{ q.n }}</span>
+    <span style="font-family:'Caveat',cursive;font-size:11px;font-weight:600;line-height:0.9;color:#b06a2a">{{ q.tag }}</span>
+  </div>
+</sc-for>
+
+<div style="position:absolute;left:316px;top:447px;width:440px;height:44px;display:flex;align-items:center;justify-content:space-between;padding:0 12px;box-sizing:border-box;font-family:'Special Elite',monospace;font-size:10px;color:#8a3a2a"><span>MISS THE SLA → THE MANAGER'S OFFICE</span><span style="font-size:16px">{{ escalatedCount }}</span></div>
+
+<sc-for list="{{ tokensView }}" as="t" hint-placeholder-count="3">
+  <div onClick="{{ t.click }}" title="{{ t.text }}" style="position:absolute;left:{{ t.x }}px;top:{{ t.y }}px;width:26px;height:26px;background:#f3e8cc;border:1.5px solid {{ t.color }};border-radius:3px;box-shadow:1px 2px 3px rgba(0,0,0,0.3);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:12px;color:{{ t.color }};transition:left 0.9s ease-in-out,top 0.9s ease-in-out;animation:arrive 0.4s ease-out;z-index:5">!</div>
+</sc-for>
+
+<sc-for list="{{ floaters }}" as="f">
+  <div style="position:absolute;left:{{ f.x }}px;top:{{ f.y }}px;font-family:'Caveat',cursive;font-size:17px;font-weight:700;color:{{ f.color }};animation:floatUp 1.6s ease-out forwards;pointer-events:none;z-index:8;white-space:nowrap">{{ f.text }}</div>
+</sc-for>
+
+<sc-for list="{{ stickies }}" as="u">
+  <div onClick="{{ u.click }}" style="position:absolute;left:{{ u.x }}px;top:{{ u.y }}px;width:{{ u.w }}px;height:{{ u.h }}px;transform:rotate({{ u.rot }}deg);cursor:pointer;display:flex;flex-direction:column;justify-content:center;padding:6px;box-sizing:border-box;font-family:'Caveat',cursive;font-weight:600;font-size:12px;line-height:1.05;color:#4a3a22;text-align:center">
+    <span>{{ u.label }}</span>
+    <span style="font-size:11px;color:{{ u.priceColor }};margin-top:2px">{{ u.price }}</span>
+  </div>
+</sc-for>
+
+<div style="position:absolute;left:316px;top:538px;display:flex;gap:8px">
+  <div style="background:rgba(246,236,212,0.92);border-radius:4px;padding:4px 11px;text-align:center;box-shadow:0 2px 4px rgba(0,0,0,0.3);font-family:'Special Elite',monospace;color:#4a3a22"><div style="font-size:9px;letter-spacing:0.12em;color:#8a7a5c">OPEN</div><div style="font-size:16px">{{ hudOpen }}</div></div>
+  <div style="background:rgba(246,236,212,0.92);border-radius:4px;padding:4px 11px;text-align:center;box-shadow:0 2px 4px rgba(0,0,0,0.3);font-family:'Special Elite',monospace;color:#4a3a22"><div style="font-size:9px;letter-spacing:0.12em;color:#8a7a5c">FEATURES</div><div style="font-size:16px">{{ hudFtr }}</div></div>
+  <div style="background:rgba(246,236,212,0.92);border-radius:4px;padding:4px 11px;text-align:center;box-shadow:0 2px 4px rgba(0,0,0,0.3);font-family:'Special Elite',monospace;color:#4a3a22"><div style="font-size:9px;letter-spacing:0.12em;color:#8a7a5c">BUGS</div><div style="font-size:16px;color:#8a3a2a">{{ hudBugs }}</div></div>
+  <div style="background:rgba(246,236,212,0.92);border-radius:4px;padding:4px 11px;text-align:center;box-shadow:0 2px 4px rgba(0,0,0,0.3);font-family:'Special Elite',monospace;color:#4a3a22"><div style="font-size:9px;letter-spacing:0.12em;color:#8a7a5c">RESOLVED</div><div style="font-size:16px;color:#4a5a35">{{ hudResolved }}</div></div>
+</div>
+
+<img src="assets/desk/stamp-idle.png" onClick="{{ onStampClick }}" style="position:absolute;left:36px;top:508px;width:148px;opacity:{{ stIdle }};cursor:pointer" alt="" title="Stamp the most urgent complaint">
+<img src="assets/desk/stamp-pressed.png" onClick="{{ onStampClick }}" style="position:absolute;left:36px;top:494px;width:148px;opacity:{{ stPress }};cursor:pointer" alt="">
+
+<sc-if value="{{ hasSel }}" hint-placeholder-val="{{ false }}">
+  <div style="position:absolute;left:390px;top:225px;width:290px;background:#f6ecd4;border:1px solid #c9b88f;box-shadow:0 10px 26px rgba(0,0,0,0.5);transform:rotate(-1.2deg);padding:16px 18px;z-index:20;display:flex;flex-direction:column;gap:8px">
+    <div style="font-family:'Special Elite',monospace;font-size:10px;letter-spacing:0.12em;color:#8a3a2a">COMPLAINT #{{ selNum }} · {{ selSev }} · DUE DAY {{ selDue }}</div>
+    <div style="font-family:'Special Elite',monospace;font-size:15px;line-height:1.45;color:#3a2e1c">"{{ selText }}"</div>
+    <div style="display:flex;gap:8px;margin-top:4px;flex-wrap:wrap">
+      <div onClick="{{ onResolve }}" style="border:1.5px solid #3a2e1c;border-radius:4px;padding:4px 10px;font-family:'Special Elite',monospace;font-size:12px;color:#3a2e1c;cursor:pointer">RESOLVE ✓ (+{{ selReward }} FEATURES)</div>
+      <div onClick="{{ onBuyTime }}" style="border:1.5px solid #9c8a6a;border-radius:4px;padding:4px 10px;font-family:'Special Elite',monospace;font-size:12px;color:#5a4630;cursor:pointer;opacity:{{ buyTimeOpacity }}">BUY TIME +2 DAYS (3 FEATURES)</div>
+      <div onClick="{{ onDismiss }}" style="border:1.5px dashed #9c8a6a;border-radius:4px;padding:4px 10px;font-family:'Special Elite',monospace;font-size:12px;color:#8a7a5c;cursor:pointer">LEAVE IT</div>
+    </div>
+  </div>
+</sc-if>
+
+<sc-if value="{{ hasTacky }}" hint-placeholder-val="{{ false }}">
+  <img src="assets/desk/tacky-card-color.png" onClick="{{ onDismissTacky }}" style="position:absolute;left:310px;top:130px;width:450px;transform:rotate(-1.5deg);box-shadow:0 14px 34px rgba(0,0,0,0.55);border-radius:8px;cursor:pointer;z-index:25;animation:arrive 0.5s ease-out" alt="All clear! Your queue is empty. — Tacky" title="Tacky is proud of you. Click to set the card aside.">
+</sc-if>
+
+<sc-if value="{{ hasMemo }}" hint-placeholder-val="{{ false }}">
+  <div style="position:absolute;inset:0;background:rgba(20,12,6,0.55);z-index:30"></div>
+  <div style="position:absolute;left:385px;top:130px;width:300px;background:#f6ecd4;border:1px solid #c9b88f;box-shadow:0 14px 34px rgba(0,0,0,0.6);transform:rotate(-2deg);padding:22px 24px;z-index:31;display:flex;flex-direction:column;gap:10px;color:#3a2e1c">
+    <div style="font-family:'Special Elite',monospace;font-size:11px;letter-spacing:0.14em;border-bottom:1px solid #c9b88f;padding-bottom:6px">WHILE YOU WERE OUT</div>
+    <div style="text-align:center;font-family:'Special Elite',monospace"><span style="font-size:15px">You were gone {{ memoGone }}.</span><br><span style="font-size:34px;font-weight:700">{{ memoArrived }}</span><br><span style="font-size:13px">new complaints arrived</span></div>
+    <div style="font-family:'Special Elite',monospace;font-size:13px;line-height:1.6">✓ {{ memoClosed }} were closed and marked Resolved<br>💀 {{ memoExpired }} escalated to a Manager</div>
+    <div onClick="{{ onLiftMemo }}" style="border:2px solid #3a2e1c;border-radius:4px;text-align:center;font-family:'Special Elite',monospace;font-size:13px;padding:6px;cursor:pointer">LIFT THE SLIP →</div>
+  </div>
+</sc-if>
+
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;pace&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;default&quot;:&quot;normal&quot;,&quot;options&quot;:[&quot;gentle&quot;,&quot;normal&quot;,&quot;monday&quot;],&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Difficulty&quot;},&quot;mercy&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Difficulty&quot;}}">
+class Component extends DCLogic {
+  state = { scale: 0.8, tokens: [], ftr: 15, bugs: 0, resolved: 0, month: 1, today: 1, monthNew: 0, escalatedMonth: 0, sel: null, memo: null, stamping: false, floaters: [], upgrades: { slow: false, extend: false, deflect: false }, tackyDismissed: false, booted: false };
+
+  POOL = [
+    ["It's down.", "U"], ["Still down.", "U"], ["It worked yesterday.", "R"],
+    ["Password reset. Again.", "R"], ["The attachment didn't attach.", "R"],
+    ["URGENT!!! (no other text)", "S"], ["It's making a noise now.", "R"],
+    ["Where is my refund?", "U"], ["The app ate my draft.", "R"],
+    ["Caps lock was on. Is that bad?", "R"], ["The satellite feed went dark.", "U"],
+    ["I never got the email. Any email.", "R"], ["Legal has questions.", "S"],
+    ["It says error. Just: error.", "R"], ["My cursor is gone.", "R"]
+  ];
+  SEVC = { R: "#6b6b5a", U: "#b06a2a", S: "#8a3a2a" };
+  COSTS = { slow: 25, extend: 40, deflect: 60 };
+  DAYS = 30;
+
+  dayXY(n) { const r = Math.floor((n - 1) / 7), c = (n - 1) % 7; return { x: 316 + c * 62.8, y: 160 + r * 57 }; }
+  pace() { return ({ gentle: [16000, 1], normal: [11000, 2], monday: [7000, 3] })[this.props.pace ?? "normal"] || [11000, 2]; }
+
+  componentDidMount() {
+    const fit = () => this.setState({ scale: Math.min(window.innerWidth / 1102, window.innerHeight / 600) });
+    window.addEventListener("resize", fit); fit(); this._fit = fit;
+    this.load();
+    this._tick = setInterval(() => this.dayTick(), this.pace()[0]);
+    this._save = setInterval(() => this.save(), 5000);
+    window.addEventListener("beforeunload", () => this.save());
+  }
+  componentWillUnmount() { clearInterval(this._tick); clearInterval(this._save); window.removeEventListener("resize", this._fit); }
+
+  REWARD = { R: 4, U: 6, S: 10 };
+  mkToken(today, ext) { const p = this.POOL[Math.floor(Math.random() * this.POOL.length)]; const sev = p[1]; const base = sev === "S" ? 1 + Math.floor(Math.random() * 2) : sev === "U" ? 2 + Math.floor(Math.random() * 4) : 4 + Math.floor(Math.random() * 6); return { id: Math.random(), due: Math.min(this.DAYS, today + base + (ext || 0)), text: p[0], sev }; }
+
+  load() {
+    let s = null; try { s = JSON.parse(localStorage.getItem("monthly-queue-save")); } catch (e) {}
+    if (!s) { const t = [this.mkToken(1), this.mkToken(1), this.mkToken(1)]; this.setState({ tokens: t, monthNew: 3, booted: true }); return; }
+    const el = Date.now() - (s.ts || Date.now());
+    let tokens = (s.tokens || []).map(t => ({ ...t, due: Math.min(this.DAYS, t.due) }));
+    let bugs = s.bugs || 0, memo = null, monthNew = s.monthNew || 0;
+    if (el > 90000) {
+      const arrived = Math.min(Math.floor(el / 45000), 40);
+      const closed = Math.round(arrived * 0.15);
+      const expired = Math.min(Math.floor(el / 300000), 6);
+      bugs += expired;
+      const today = s.today || 1;
+      for (let i = 0; i < arrived - closed && tokens.length < 20; i++) tokens.push(this.mkToken(today, (s.upgrades || {}).extend ? 2 : 0));
+      monthNew += arrived;
+      memo = { gone: this.fmt(el), arrived, closed, expired };
+    }
+    this.setState({ tokens, ftr: s.ftr ?? 15, bugs, resolved: s.resolved || 0, month: s.month || 1, today: s.today || 1, monthNew, escalatedMonth: s.escalatedMonth || 0, upgrades: s.upgrades || { slow: false, extend: false, deflect: false }, memo, booted: true });
+  }
+  save() { const { tokens, ftr, bugs, resolved, month, today, monthNew, escalatedMonth, upgrades } = this.state; localStorage.setItem("monthly-queue-save", JSON.stringify({ ts: Date.now(), tokens, ftr, bugs, resolved, month, today, monthNew, escalatedMonth, upgrades })); }
+  fmt(ms) { const h = Math.floor(ms / 3600000), m = Math.floor((ms % 3600000) / 60000); return h ? h + "h " + m + "m" : m + " minutes"; }
+
+  float(x, y, text, color) { const f = { id: Math.random(), x, y, text, color }; this.setState(s => ({ floaters: [...s.floaters, f] })); setTimeout(() => this.setState(s => ({ floaters: s.floaters.filter(o => o.id !== f.id) })), 1600); }
+
+  dayTick() {
+    if (this.state.memo) return;
+    const [, perDay] = this.pace();
+    this.setState(s => {
+      let today = s.today + 1, month = s.month, monthNew = s.monthNew, escalatedMonth = s.escalatedMonth, bugs = s.bugs;
+      let tokens = [...s.tokens];
+      if (today > this.DAYS) {
+        month++; today = 1; monthNew = 0; escalatedMonth = 0;
+        tokens = tokens.map(t => ({ ...t, due: 2 + Math.floor(Math.random() * 10) }));
+        this.float(480, 130, "a new month. same queue.", "#e8ddc2");
+      }
+      const kept = [];
+      for (const t of tokens) {
+        if (t.due < today) {
+          bugs++; escalatedMonth++;
+          const p = this.dayXY(t.due);
+          this.float(p.x, p.y, "💀 → the Manager's office", "#8a3a2a");
+        } else kept.push(t);
+      }
+      let spawn = s.upgrades.slow ? Math.max(1, perDay - 1) : perDay;
+      for (let i = 0; i < spawn && kept.length < 16; i++) {
+        if (s.upgrades.deflect && Math.random() < 0.15) { this.float(330, 150, "→ transferred ✓", "#6b6b5a"); continue; }
+        kept.push(this.mkToken(today, s.upgrades.extend ? 2 : 0));
+        monthNew++;
+      }
+      return { tokens: kept, today, month, monthNew, escalatedMonth, bugs, tackyDismissed: kept.length > 0 ? false : s.tackyDismissed };
+    });
+  }
+
+  resolveToken(t) {
+    const p = this.dayXY(t.due);
+    const r = this.REWARD[t.sev] || 5;
+    this.setState(s => ({ tokens: s.tokens.filter(o => o.id !== t.id), ftr: s.ftr + r, resolved: s.resolved + 1, stamping: true, sel: null }));
+    this.float(p.x, p.y, "RESOLVED ✓ +" + r, "#4a5a35");
+    setTimeout(() => this.setState({ stamping: false }), 400);
+  }
+
+  renderVals() {
+    const s = this.state;
+    const weekdays = ["MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"].map((d, c) => ({ d, x: 316 + Math.round(c * 62.8) }));
+    const squares = [];
+    for (let n = 1; n <= 35; n++) {
+      const p = this.dayXY(n);
+      const off = n > this.DAYS;
+      const isToday = !off && n === s.today, past = !off && n < s.today;
+      const weekend = (n - 1) % 7 >= 5;
+      squares.push({
+        n: off ? "" : n, x: p.x, y: p.y,
+        border: isToday ? "2px solid #b06a2a" : "1px dashed rgba(156,138,106,0.5)",
+        bg: off ? "rgba(120,100,70,0.12)" : isToday ? "rgba(232,163,61,0.25)" : past ? "rgba(120,100,70,0.18)" : weekend ? "rgba(180,160,120,0.12)" : "rgba(250,244,224,0.10)",
+        opacity: past ? 0.55 : 1,
+        numSize: isToday ? 12 : 8, numColor: isToday ? "#b06a2a" : "#8a7a5c",
+        tag: isToday ? "today" : ""
+      });
+    }
+    const byDay = {};
+    const tokensView = s.tokens.map(t => {
+      const p = this.dayXY(t.due);
+      const k = byDay[t.due] = (byDay[t.due] || 0) + 1;
+      return { x: p.x + 16 + (k - 1) * 8, y: p.y + 18 + (k - 1) * 5, color: this.SEVC[t.sev], text: t.text, click: () => this.setState({ sel: t.id }) };
+    });
+    const sel = s.tokens.find(t => t.id === s.sel);
+    const stCoords = [{ x: 168, y: 262, w: 104, h: 84, rot: -2 }, { x: 66, y: 352, w: 96, h: 80, rot: 1.5 }, { x: 142, y: 442, w: 104, h: 78, rot: -1 }];
+    const defs = [["slow", "\"We've received your request…\"", "1 fewer per day"], ["extend", "\"This is a Known Issue\"", "SLAs +2 days"], ["deflect", "\"Transferring you…\"", "deflects 15%"]];
+    const stickies = defs.map((d, i) => { const owned = s.upgrades[d[0]]; const cost = this.COSTS[d[0]]; return { ...stCoords[i], label: d[1], price: owned ? "✓ active — " + d[2] : cost + " — " + d[2], priceColor: owned ? "#4a5a35" : (s.ftr >= cost ? "#8a3a2a" : "#9c8a6a"), click: () => { const c = { x: stCoords[i].x + stCoords[i].w / 2, y: stCoords[i].y - 6 }; if (owned) { this.float(c.x, c.y, "already active ✓", "#4a5a35"); } else if (s.ftr < cost) { this.float(c.x, c.y, "need " + cost + " FEATURES (have " + s.ftr + ")", "#8a3a2a"); } else { this.setState(st => ({ ftr: st.ftr - cost, upgrades: { ...st.upgrades, [d[0]]: true } })); this.float(c.x, c.y, "✓ purchased — " + d[2], "#4a5a35"); } } }; });
+
+    return {
+      stageTransform: "translate(-50%,-50%) scale(" + s.scale + ")",
+      monthLabel: "MONTH " + s.month,
+      hudOpen: s.tokens.length, hudFtr: s.ftr, hudBugs: s.bugs, hudResolved: s.resolved,
+      monthNew: s.monthNew, today: s.today, escalatedCount: s.escalatedMonth,
+      weekdays, squares, tokensView, stickies, floaters: s.floaters,
+      stIdle: s.stamping ? 0 : 1, stPress: s.stamping ? 1 : 0,
+      hasSel: !!sel, selText: sel ? sel.text : "", selDue: sel ? sel.due : "", selSev: sel ? ({ R: "ROUTINE", U: "URGENT", S: "SEV-1" })[sel.sev] : "", selReward: sel ? (this.REWARD[sel.sev] || 5) : 5, selNum: sel ? Math.floor(sel.id * 100000) % 900 + 100 : "",
+      buyTimeOpacity: s.ftr >= 3 ? 1 : 0.35,
+      onResolve: () => { if (sel) this.resolveToken(sel); },
+      onBuyTime: () => { if (sel && s.ftr >= 3) { this.setState(st => ({ ftr: st.ftr - 3, sel: null, tokens: st.tokens.map(t => t.id === sel.id ? { ...t, due: Math.min(this.DAYS, t.due + 2) } : t) })); } },
+      onDismiss: () => this.setState({ sel: null }),
+      hasMemo: !!s.memo,
+      memoGone: s.memo ? s.memo.gone : "", memoArrived: s.memo ? s.memo.arrived : 0, memoClosed: s.memo ? s.memo.closed : 0, memoExpired: s.memo ? s.memo.expired : 0,
+      onLiftMemo: () => this.setState({ memo: null }),
+      hasTacky: s.booted && !s.memo && !s.tackyDismissed && s.tokens.length === 0,
+      onDismissTacky: () => this.setState({ tackyDismissed: true }),
+      onStampClick: () => { const urgent = [...s.tokens].sort((a, b) => a.due - b.due)[0]; if (urgent) this.resolveToken(urgent); else this.float(120, 505, "nothing to stamp yet", "#6b6b5a"); }
+    };
+  }
+}
+</script>
+</body>
+</html>
