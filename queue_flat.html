@@ -45,14 +45,20 @@
   .cell.today .num{color:var(--today); font-size:clamp(11px,3.4vw,15px)}
   .cell .todaytag{font-family:'Caveat',cursive; color:var(--today); font-size:clamp(11px,3.4vw,16px); line-height:.9}
   .cards{position:absolute; right:3px; bottom:3px; display:flex}
-  /* cute-quartet card */
-  .card{width:clamp(16px,5vw,26px); height:clamp(16px,5vw,26px); margin-left:-9px; background:#f6ecd2;
-    border:2px solid var(--sev-R); border-radius:3px; display:flex; align-items:center; justify-content:center;
-    font-size:clamp(9px,3vw,14px); font-weight:bold; color:var(--sev-S); box-shadow:1px 1px 2px rgba(0,0,0,.3);
-    cursor:pointer; transition:transform .08s}
+  /* drawn memo, whole thing tinted by time-to-deadline (calm cream -> red) */
+  .card{position:relative; width:clamp(17px,5.2vw,27px); height:clamp(17px,5.2vw,27px); margin-left:-9px;
+    border:1.5px solid var(--bd,#9a9074); border-radius:2px; background:var(--pp,#ebe6d2);
+    box-shadow:1px 1px 2px rgba(0,0,0,.3); cursor:pointer; transition:transform .08s; overflow:hidden}
   .card:first-child{margin-left:0}
-  .card.U{border-color:var(--sev-U)} .card.S{border-color:var(--sev-S)}
   .card:active{transform:scale(.86)}
+  .card .lines{position:absolute; inset:4px 3px 3px 3px;
+    background:repeating-linear-gradient(180deg, transparent 0 2.5px, var(--ink,rgba(92,88,68,.4)) 2.5px 3.5px)}
+  .card .fold{position:absolute; top:0; right:0; width:0; height:0;
+    border-top:7px solid var(--fold,#d8cfb2); border-left:7px solid transparent}
+  .card.u0{--pp:#ebe6d2; --bd:#9a9074; --ink:rgba(92,88,68,.40); --fold:#d8cfb2} /* calm  (5+ days) */
+  .card.u1{--pp:#f2e2b6; --bd:#bd8a34; --ink:rgba(150,110,40,.45); --fold:#e4cf90} /* warming (3-4) */
+  .card.u2{--pp:#f0cf9e; --bd:#c06a26; --ink:rgba(150,80,30,.50); --fold:#e2bd85} /* hot   (1-2)  */
+  .card.u3{--pp:#ecc0a8; --bd:#9a3a26; --ink:rgba(140,50,32,.55); --fold:#dcae98} /* critical (due) */
   .footer{border-top:1px solid var(--line); margin-top:clamp(6px,2vw,12px); padding-top:clamp(5px,1.6vw,10px);
     display:flex; justify-content:space-between; font-size:clamp(8px,2.6vw,12px); color:var(--sev-S); letter-spacing:.04em}
   .hud{display:flex; flex-wrap:wrap; gap:clamp(5px,1.6vw,10px); justify-content:center; margin:clamp(8px,2.5vw,14px) auto 0; max-width:960px}
@@ -216,7 +222,10 @@
       if(byDay[n]){
         var wrap=document.createElement("div"); wrap.className="cards";
         byDay[n].forEach(function(t){
-          var c=document.createElement("div"); c.className="card "+t.sev; c.textContent="!"; c.title=t.text;
+          var dl=t.due-S.day, u=dl>=5?"u0":dl>=3?"u1":dl>=1?"u2":"u3";
+          var c=document.createElement("div"); c.className="card "+u; c.title=t.text;
+          var ln=document.createElement("div"); ln.className="lines"; c.appendChild(ln);
+          var fd=document.createElement("div"); fd.className="fold"; c.appendChild(fd);
           c.onclick=(function(tok){return function(){ openSel(tok); };})(t);
           wrap.appendChild(c);
         });
