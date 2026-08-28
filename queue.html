@@ -14,7 +14,7 @@
 <style>/* cyrillic-ext */
 @font-face {
   font-family: 'Caveat';
-  font-style: wednesday;
+  font-style: normal;
   font-weight: 600;
   font-display: swap;
   src: url("assets/fonts/caveat-1.woff2") format('woff2');
@@ -23,7 +23,7 @@
 /* cyrillic */
 @font-face {
   font-family: 'Caveat';
-  font-style: wednesday;
+  font-style: normal;
   font-weight: 600;
   font-display: swap;
   src: url("assets/fonts/caveat-2.woff2") format('woff2');
@@ -32,7 +32,7 @@
 /* latin-ext */
 @font-face {
   font-family: 'Caveat';
-  font-style: wednesday;
+  font-style: normal;
   font-weight: 600;
   font-display: swap;
   src: url("assets/fonts/caveat-3.woff2") format('woff2');
@@ -41,7 +41,7 @@
 /* latin */
 @font-face {
   font-family: 'Caveat';
-  font-style: wednesday;
+  font-style: normal;
   font-weight: 600;
   font-display: swap;
   src: url("assets/fonts/caveat-4.woff2") format('woff2');
@@ -50,7 +50,7 @@
 /* cyrillic-ext */
 @font-face {
   font-family: 'Caveat';
-  font-style: wednesday;
+  font-style: normal;
   font-weight: 700;
   font-display: swap;
   src: url("assets/fonts/caveat-1.woff2") format('woff2');
@@ -59,7 +59,7 @@
 /* cyrillic */
 @font-face {
   font-family: 'Caveat';
-  font-style: wednesday;
+  font-style: normal;
   font-weight: 700;
   font-display: swap;
   src: url("assets/fonts/caveat-2.woff2") format('woff2');
@@ -68,7 +68,7 @@
 /* latin-ext */
 @font-face {
   font-family: 'Caveat';
-  font-style: wednesday;
+  font-style: normal;
   font-weight: 700;
   font-display: swap;
   src: url("assets/fonts/caveat-3.woff2") format('woff2');
@@ -77,7 +77,7 @@
 /* latin */
 @font-face {
   font-family: 'Caveat';
-  font-style: wednesday;
+  font-style: normal;
   font-weight: 700;
   font-display: swap;
   src: url("assets/fonts/caveat-4.woff2") format('woff2');
@@ -86,7 +86,7 @@
 /* latin-ext */
 @font-face {
   font-family: 'Special Elite';
-  font-style: wednesday;
+  font-style: normal;
   font-weight: 400;
   font-display: swap;
   src: url("assets/fonts/caveat-5.woff2") format('woff2');
@@ -95,7 +95,7 @@
 /* latin */
 @font-face {
   font-family: 'Special Elite';
-  font-style: wednesday;
+  font-style: normal;
   font-weight: 400;
   font-display: swap;
   src: url("assets/fonts/caveat-6.woff2") format('woff2');
@@ -181,7 +181,7 @@
 </x-dc>
 <script type="text/x-dc" data-dc-script="" data-props="{&quot;pace&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;default&quot;:&quot;wednesday&quot;,&quot;options&quot;:[&quot;friday&quot;,&quot;wednesday&quot;,&quot;monday&quot;],&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Difficulty&quot;},&quot;mercy&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Difficulty&quot;}}">
 class Component extends DCLogic {
-  state = { scale: 0.8, tokens: [], ftr: 15, EXPIRED: 0, REPUTATION: 0, month: 1, today: 1, monthNew: 0, escalatedMonth: 0, sel: null, memo: null, stamping: false, floaters: [], upgrades: { slow: false, extend: false, deflect: false }, tackyDismissed: false, booted: false };
+  state = { scale: 0.8, tokens: [], ftr: 15, EXPIRED: 0, REPUTATION: 10, month: 1, today: 1, monthNew: 0, escalatedMonth: 0, sel: null, memo: null, stamping: false, floaters: [], upgrades: { slow: false, extend: false, deflect: false }, tackyDismissed: false, booted: false };
 
   POOL = [
     ["It's down.", "U"], ["Still down.", "U"], ["It worked yesterday.", "R"],
@@ -222,18 +222,18 @@ class Component extends DCLogic {
     if (!s) { const t = [this.mkToken(1), this.mkToken(1), this.mkToken(1)]; this.setState({ tokens: t, monthNew: 3, booted: true }); return; }
     const el = Date.now() - (s.ts || Date.now());
     let tokens = (s.tokens || []).map(t => ({ ...t, due: Math.min(this.DAYS, t.due) }));
-    let EXPIRED = s.EXPIRED || 0, memo = null, monthNew = s.monthNew || 0;
+    let EXPIRED = s.EXPIRED || 0, memo = null, monthNew = s.monthNew || 0, expired = 0;
     if (el > 90000) {
       const arrived = Math.min(Math.floor(el / 45000), 40);
       const closed = Math.round(arrived * 0.15);
-      const expired = Math.min(Math.floor(el / 300000), 6);
+      expired = Math.min(Math.floor(el / 300000), 6);
       EXPIRED += expired;
       const today = s.today || 1;
       for (let i = 0; i < arrived - closed && tokens.length < 20; i++) tokens.push(this.mkToken(today, (s.upgrades || {}).extend ? 2 : 0));
       monthNew += arrived;
       memo = { gone: this.fmt(el), arrived, closed, expired };
     }
-    this.setState({ tokens, ftr: s.ftr ?? 15, EXPIRED, REPUTATION: s.REPUTATION || 0, month: s.month || 1, today: s.today || 1, monthNew, escalatedMonth: s.escalatedMonth || 0, upgrades: s.upgrades || { slow: false, extend: false, deflect: false }, memo, booted: true });
+    this.setState({ tokens, ftr: s.ftr ?? 15, EXPIRED, REPUTATION: Math.max(-10, (s.REPUTATION ?? 10) - expired * 2), month: s.month || 1, today: s.today || 1, monthNew, escalatedMonth: s.escalatedMonth || 0, upgrades: s.upgrades || { slow: false, extend: false, deflect: false }, memo, booted: true });
   }
   save() { const { tokens, ftr, EXPIRED, REPUTATION, month, today, monthNew, escalatedMonth, upgrades } = this.state; localStorage.setItem("monthly-queue-save", JSON.stringify({ ts: Date.now(), tokens, ftr, EXPIRED, REPUTATION, month, today, monthNew, escalatedMonth, upgrades })); }
   fmt(ms) { const h = Math.floor(ms / 3600000), m = Math.floor((ms % 3600000) / 60000); return h ? h + "h " + m + "m" : m + " minutes"; }
@@ -244,7 +244,7 @@ class Component extends DCLogic {
     if (this.state.memo) return;
     const [, perDay] = this.pace();
     this.setState(s => {
-      let today = s.today + 1, month = s.month, monthNew = s.monthNew, escalatedMonth = s.escalatedMonth, EXPIRED = s.EXPIRED;
+      let today = s.today + 1, month = s.month, monthNew = s.monthNew, escalatedMonth = s.escalatedMonth, EXPIRED = s.EXPIRED, REPUTATION = s.REPUTATION;
       let tokens = [...s.tokens];
       if (today > this.DAYS) {
         month++; today = 1; monthNew = 0; escalatedMonth = 0;
@@ -254,7 +254,7 @@ class Component extends DCLogic {
       const kept = [];
       for (const t of tokens) {
         if (t.due < today) {
-          EXPIRED++; escalatedMonth++;
+          EXPIRED++; escalatedMonth++; REPUTATION = Math.max(-10, REPUTATION - 2);
           const p = this.dayXY(t.due);
           this.float(p.x, p.y, "💀 → the Manager's office", "#8a3a2a");
         } else kept.push(t);
@@ -265,17 +265,19 @@ class Component extends DCLogic {
         kept.push(this.mkToken(today, s.upgrades.extend ? 2 : 0));
         monthNew++;
       }
-      return { tokens: kept, today, month, monthNew, escalatedMonth, EXPIRED, tackyDismissed: kept.length > 0 ? false : s.tackyDismissed };
+      return { tokens: kept, today, month, monthNew, escalatedMonth, EXPIRED, REPUTATION, tackyDismissed: kept.length > 0 ? false : s.tackyDismissed };
     });
   }
 
   FIXToken(t) {
     const p = this.dayXY(t.due);
     const r = this.REWARD[t.sev] || 5;
-    this.setState(s => ({ tokens: s.tokens.filter(o => o.id !== t.id), ftr: s.ftr + r, REPUTATION: s.REPUTATION + 1, stamping: true, sel: null }));
-    this.float(p.x, p.y, "REPUTATION ✓ +" + r, "#4a5a35");
+    this.setState(s => ({ tokens: s.tokens.filter(o => o.id !== t.id), ftr: s.ftr + r, REPUTATION: Math.min(20, s.REPUTATION + 1), stamping: true, sel: null }));
+    this.float(p.x, p.y, "FIXED ✓ +" + r, "#4a5a35");
     setTimeout(() => this.setState({ stamping: false }), 400);
   }
+
+  repFace(v) { return v >= 16 ? "😄" : v >= 10 ? "🙂" : v >= 4 ? "😐" : v >= 0 ? "😟" : v >= -5 ? "😨" : "💀"; }
 
   renderVals() {
     const s = this.state;
@@ -309,7 +311,7 @@ class Component extends DCLogic {
     return {
       stageTransform: "translate(-50%,-50%) scale(" + s.scale + ")",
       monthLabel: "MONTH " + s.month,
-      hudOpen: s.tokens.length, hudFtr: s.ftr, hudEXPIRED: s.EXPIRED, hudREPUTATION: s.REPUTATION,
+      hudOpen: s.tokens.length, hudFtr: s.ftr, hudEXPIRED: s.EXPIRED, hudREPUTATION: this.repFace(s.REPUTATION),
       monthNew: s.monthNew, today: s.today, escalatedCount: s.escalatedMonth,
       weekdays, squares, tokensView, stickies, floaters: s.floaters,
       stIdle: s.stamping ? 0 : 1, stPress: s.stamping ? 1 : 0,
@@ -332,4 +334,4 @@ class Component extends DCLogic {
 </script>
 
 
-</body></html>
+</body></html>
