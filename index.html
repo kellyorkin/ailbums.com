@@ -1,645 +1,146 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>AIlbums</title>
-<meta name="description" content="Already enabled for your organization." />
-
-<!--
-  AIlbums — the application that was always in the menu.
-  Aesthetic direction: M365-native, deadpan-enterprise. The joke is that it looks so
-  provisioned you assume IT deployed it in 2019 and lost the ticket. Font stack leads with
-  Segoe UI on purpose: on a Windows machine this renders in the actual system face and
-  completes the illusion. The wit lives in the copy; the design stays genuinely clean-corporate.
-  Family resemblance to the rest of the constellation is carried by the footer voice, not the color.
--->
-
-<style>
-  :root {
-    /* Fluent-leaning neutrals + AIlbums' own green accent (one var; repalette freely) */
-    --canvas:      #faf9f8;
-    --surface:     #ffffff;
-    --line:        #edebe9;
-    --ink:         #201f1e;
-    --ink-soft:    #605e5c;
-    --ink-faint:   #8a8886;
-
-    --accent:      #2f7a4d;
-    --accent-deep: #245c3a;
-    --accent-tint: #e8f2ec;
-
-    --shadow-card: 0 1.6px 3.6px rgba(0,0,0,0.10), 0 0.3px 0.9px rgba(0,0,0,0.07);
-    --shadow-tile: 0 12px 28px rgba(36, 92, 58, 0.28), 0 2px 6px rgba(0,0,0,0.12);
-
-    --font: "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
-  }
-
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-
-  html, body {
-    background: var(--canvas);
-    color: var(--ink);
-    font-family: var(--font);
-    -webkit-font-smoothing: antialiased;
-    text-rendering: optimizeLegibility;
-    line-height: 1.5;
-  }
-
-  a { color: inherit; }
-
-  .wrap {
-    max-width: 1080px;
-    margin: 0 auto;
-    padding: 0 clamp(1.25rem, 5vw, 3rem);
-  }
-
-  /* ====== TOP STRIP — generic app chrome, deliberately not anyone's trademark ====== */
-
-  .topbar {
-    background: var(--surface);
-    border-bottom: 1px solid var(--line);
-  }
-
-  .topbar-row {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    height: 48px;
-  }
-
-  .topbar-left {
-    display: flex;
-    align-items: center;
-    gap: 0.65rem;
-    font-size: 0.9rem;
-    font-weight: 600;
-    letter-spacing: 0.01em;
-  }
-
-  .dot-grid { display: grid; grid-template-columns: repeat(3, 4px); gap: 3px; }
-  .dot-grid span { width: 4px; height: 4px; border-radius: 1px; background: var(--ink-faint); }
-
-  .topbar-left .mark-ai { color: var(--accent); }
-
-  .topbar-right {
-    font-size: 0.78rem;
-    color: var(--ink-faint);
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-  }
-
-  .topbar-right .help {
-    width: 18px; height: 18px; border-radius: 50%;
-    border: 1px solid var(--ink-faint);
-    display: inline-flex; align-items: center; justify-content: center;
-    font-size: 0.7rem; font-style: italic;
-  }
-
-  /* ====== HERO ====== */
-
-  .hero {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: clamp(2rem, 5vw, 3.5rem);
-    padding: clamp(2.5rem, 7vw, 5rem) 0 clamp(1.5rem, 4vw, 2.5rem);
-    align-items: center;
-  }
-
-  @media (min-width: 760px) {
-    .hero { grid-template-columns: auto 1fr; }
-  }
-
-  /* The app tile, rendered in CSS so it stays crisp at any size */
-  .tile-stage {
-    display: flex;
-    justify-content: center;
-  }
-
-  .app-tile { position: relative; width: 132px; height: 132px; }
-
-  .tile-page {
-    position: absolute;
-    top: 12px;
-    bottom: 12px;
-    border-radius: 16px;
-  }
-  .tile-page-1 { right: -12px; width: 120px; background: #6aa886; z-index: 1; }
-  .tile-page-2 { right: -22px; width: 120px; background: #a9cbb8; z-index: 0; }
-
-  .tile-face {
-    position: absolute;
-    inset: 0;
-    border-radius: 20px;
-    background: linear-gradient(150deg, var(--accent), var(--accent-deep));
-    box-shadow: var(--shadow-tile);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 2;
-  }
-  .tile-glyph {
-    color: #ffffff;
-    font-weight: 700;
-    font-size: 3.4rem;
-    letter-spacing: -0.03em;
-  }
-  .tile-glyph b { font-weight: 700; }
-  /* a faint divider sliver between A I, echoing an album spine */
-  .tile-glyph i {
-    font-style: normal;
-    display: inline-block;
-    width: 3px;
-    height: 2.6rem;
-    background: rgba(255,255,255,0.55);
-    border-radius: 2px;
-    margin: 0 1px;
-    transform: translateY(6px);
-  }
-
-  .hero-copy { max-width: 34rem; }
-
-  .eyebrow {
-    display: inline-block;
-    font-size: 0.72rem;
-    letter-spacing: 0.06em;
-    color: var(--accent-deep);
-    background: var(--accent-tint);
-    border-radius: 3px;
-    padding: 0.28rem 0.6rem;
-    font-weight: 600;
-    margin-bottom: 1.1rem;
-  }
-
-  .wordmark {
-    font-size: clamp(2.4rem, 6vw, 3.4rem);
-    font-weight: 700;
-    letter-spacing: -0.02em;
-    line-height: 1.05;
-    display: flex;
-    align-items: baseline;
-    flex-wrap: wrap;
-    gap: 0 0.1rem;
-  }
-  .wordmark .ai  { color: var(--accent); }
-  .wordmark .rest{ color: var(--ink); }
-  .wordmark .tld { color: var(--ink-faint); font-weight: 600; }
-
-  .badge {
-    align-self: center;
-    font-size: 0.62rem;
-    font-weight: 700;
-    letter-spacing: 0.08em;
-    color: var(--accent-deep);
-    border: 1px solid var(--accent);
-    border-radius: 999px;
-    padding: 0.18rem 0.55rem;
-    margin-left: 0.6rem;
-    text-transform: uppercase;
-    white-space: nowrap;
-  }
-
-  .lede {
-    font-size: 1.15rem;
-    color: var(--ink);
-    margin: 1.1rem 0 0.5rem;
-  }
-  .subde {
-    font-size: 0.98rem;
-    color: var(--ink-soft);
-    margin-bottom: 1.6rem;
-  }
-
-  .actions { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
-
-  .btn {
-    font-family: var(--font);
-    font-size: 0.92rem;
-    font-weight: 600;
-    border-radius: 4px;
-    padding: 0.6rem 1.4rem;
-    border: 1px solid transparent;
-    cursor: pointer;
-    text-decoration: none;
-    display: inline-block;
-    transition: background 0.15s ease, border-color 0.15s ease;
-  }
-  .btn-primary { background: var(--accent); color: #fff; }
-  .btn-primary:hover { background: var(--accent-deep); }
-  .btn-ghost { background: transparent; color: var(--ink); border-color: var(--ink-faint); }
-  .btn-ghost:hover { border-color: var(--ink-soft); }
-
-  .micro {
-    font-size: 0.8rem;
-    color: var(--ink-faint);
-    margin-top: 1rem;
-  }
-  .micro .star { color: var(--ink-faint); }
-
-  /* ====== NOTICE BAR — the Fluent "your admin did this" message strip ====== */
-
-  .notice {
-    background: #f3f2f1;
-    border-left: 3px solid var(--accent);
-    border-radius: 2px;
-    padding: 0.7rem 1rem;
-    margin: 0.5rem 0 2.5rem;
-    display: flex;
-    align-items: center;
-    gap: 0.6rem;
-    font-size: 0.86rem;
-    color: var(--ink-soft);
-  }
-  .notice svg { flex-shrink: 0; }
-
-  /* ====== FEATURE CARDS ====== */
-
-  .features {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 1rem;
-    padding-bottom: 2.75rem;
-  }
-  @media (min-width: 720px) { .features { grid-template-columns: repeat(3, 1fr); } }
-
-  .card {
-    background: var(--surface);
-    border: 1px solid var(--line);
-    border-radius: 6px;
-    box-shadow: var(--shadow-card);
-    padding: 1.4rem 1.5rem 1.5rem;
-  }
-  .card h3 {
-    font-size: 1rem;
-    font-weight: 600;
-    margin-bottom: 0.5rem;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-  }
-  .card h3 .pip { width: 8px; height: 8px; border-radius: 2px; background: var(--accent); }
-  .card p { font-size: 0.9rem; color: var(--ink-soft); }
-
-  /* ====== RESIDENT — Spec Locator, the actual tool living here ====== */
-
-  .resident {
-    background: var(--surface);
-    border: 1px solid var(--line);
-    border-radius: 8px;
-    box-shadow: var(--shadow-card);
-    padding: clamp(1.75rem, 4vw, 2.75rem);
-    margin-bottom: 3rem;
-    display: grid;
-    gap: 1rem;
-    max-width: 46rem;
-  }
-  .resident .r-eyebrow {
-    font-size: 0.72rem;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--ink-faint);
-    font-weight: 600;
-  }
-  .resident h2 {
-    font-size: clamp(1.5rem, 3.5vw, 2rem);
-    font-weight: 700;
-    letter-spacing: -0.01em;
-    display: flex;
-    align-items: baseline;
-    gap: 0.7rem;
-    flex-wrap: wrap;
-  }
-  .resident h2 .ver {
-    font-size: 0.72rem;
-    font-weight: 600;
-    color: var(--ink-faint);
-    letter-spacing: 0.04em;
-    border: 1px solid var(--line);
-    border-radius: 999px;
-    padding: 0.12rem 0.55rem;
-  }
-  .resident p { font-size: 0.98rem; color: var(--ink-soft); max-width: 34rem; }
-  .resident .r-dry { color: var(--ink-faint); font-size: 0.9rem; }
-  .resident .actions { margin-top: 0.4rem; }
-
-  /* ====== DIRECTORY — the rest of the family, provisioned alongside SpecLoc ======
-     In-register: single green accent, album-stack tile motif echoing the hero,
-     deadpan one-liners in the resident voice. The recursion closes on the parent. */
-
-  .directory { padding-bottom: 3rem; }
-  .directory .r-eyebrow {
-    font-size: 0.72rem;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--ink-faint);
-    font-weight: 600;
-    display: block;
-    margin-bottom: 0.5rem;
-  }
-  .dir-head {
-    font-size: clamp(1.5rem, 3.5vw, 2rem);
-    font-weight: 700;
-    letter-spacing: -0.01em;
-    margin-bottom: 0.35rem;
-  }
-  .dir-sub { font-size: 0.98rem; color: var(--ink-soft); max-width: 36rem; margin-bottom: 1.5rem; }
-
-  .app-grid { display: grid; grid-template-columns: 1fr; gap: 1rem; }
-  @media (min-width: 560px) { .app-grid { grid-template-columns: repeat(2, 1fr); } }
-  @media (min-width: 880px) { .app-grid { grid-template-columns: repeat(3, 1fr); } }
-
-  .app {
-    display: flex;
-    gap: 0.85rem;
-    align-items: flex-start;
-    background: var(--surface);
-    border: 1px solid var(--line);
-    border-radius: 6px;
-    box-shadow: var(--shadow-card);
-    padding: 1rem 1.1rem;
-    text-decoration: none;
-    position: relative;
-    transition: box-shadow 0.15s ease, transform 0.15s ease, border-color 0.15s ease;
-  }
-  .app:hover { box-shadow: 0 3.2px 7.2px rgba(0,0,0,0.10), 0 0.6px 1.8px rgba(0,0,0,0.09); transform: translateY(-1px); border-color: var(--line); }
-  .app:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
-
-  /* mini album-tile: the hero's motif at 40px */
-  .app-ic { position: relative; flex: 0 0 auto; width: 40px; height: 40px; }
-  .app-ic .stack { position: absolute; top: 4px; bottom: 4px; right: -3px; width: 34px; border-radius: 8px; background: #6aa886; z-index: 1; }
-  .app-ic .face {
-    position: absolute; inset: 0; border-radius: 9px; z-index: 2;
-    background: linear-gradient(150deg, var(--accent), var(--accent-deep));
-    display: grid; place-items: center;
-    box-shadow: 0 4px 10px rgba(36,92,58,0.26);
-  }
-  .app-ic svg { width: 20px; height: 20px; stroke: #fff; fill: none; stroke-width: 1.7; }
-
-  .app-tx { min-width: 0; }
-  .app-nm { font-weight: 600; font-size: 0.98rem; line-height: 1.15; margin-bottom: 0.05rem; }
-  .app-page { display: block; font-size: 0.78rem; font-weight: 600; color: var(--ink-soft); margin-bottom: 0.3rem; }
-  .app-ds { font-size: 0.74rem; color: var(--ink-faint); }
-
-  /* per-app brand colors — the launcher goes rainbow now that each is its own app,
-     while every icon stays an album-stack (still an "album" in AIlbums) */
-  .c-herd   .face{background:linear-gradient(150deg,#1f9d4d,#146b34);} .c-herd   .stack{background:#9bd6b0;}
-  .c-bigtop .face{background:linear-gradient(150deg,#c8296f,#8f1a4e);} .c-bigtop .stack{background:#e79dc0;}
-  .c-quorum .face{background:linear-gradient(150deg,#128a8a,#0c5f5f);} .c-quorum .stack{background:#94d3d3;}
-  .c-find   .face{background:linear-gradient(150deg,#7b4cc4,#553288);} .c-find   .stack{background:#c3aee8;}
-  .c-docket .face{background:linear-gradient(150deg,#c0872a,#8a5f18);} .c-docket .stack{background:#e6c78f;}
-  .c-side   .face{background:linear-gradient(150deg,#d5622a,#9c4418);} .c-side   .stack{background:#f0b48f;}
-  .c-provision .face{background:linear-gradient(150deg,#2f6fd0,#1f4c96);} .c-provision .stack{background:#a6c2ee;}
-  .c-parent .face{background:linear-gradient(150deg,#4a4a48,#2f2f2e);} .c-parent .stack{background:#b7b7b4;}
-  .c-bunker   .face{background:linear-gradient(150deg,#6d7a33,#464f1c);} .c-bunker   .stack{background:#c4cf94;}
-  .c-pipeline .face{background:linear-gradient(150deg,#4a5a8a,#2c3757);} .c-pipeline .stack{background:#aeb8dd;}
-  .c-specimen .face{background:linear-gradient(150deg,#5a8a3a,#3a5f1f);} .c-specimen .stack{background:#bcd69b;}
-  .c-oracle   .face{background:linear-gradient(150deg,#9a1f3a,#6b1428);} .c-oracle   .stack{background:#e0a0ac;}
-  .c-shill    .face{background:linear-gradient(150deg,#455058,#282e33);} .c-shill    .stack{background:#b0b8bf;}
-  .c-masthead .face{background:linear-gradient(150deg,#b23a2f,#7d2418);} .c-masthead .stack{background:#e6a99e;}
-  .app-flag {
-    display: inline-block; margin-top: 0.5rem;
-    font-size: 0.66rem; letter-spacing: 0.05em; text-transform: uppercase; font-weight: 600;
-    color: var(--accent-deep); border: 1px solid var(--accent); border-radius: 999px; padding: 0.1rem 0.5rem;
-  }
-  .app.current { background: var(--accent-tint); border-color: #cfe4d7; cursor: default; }
-  .app.current .app-nm { color: var(--accent-deep); }
-
-  /* ====== FOOTER — the one place the family resemblance lives ====== */
-
-  footer {
-    border-top: 1px solid var(--line);
-    background: var(--surface);
-    color: var(--ink-faint);
-    font-size: 0.78rem;
-    line-height: 1.6;
-  }
-  .footer-grid {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 0.9rem;
-    padding: 1.6rem 0 1rem;
-  }
-  @media (min-width: 720px) {
-    .footer-grid { grid-template-columns: 1fr auto; align-items: center; }
-  }
-  .footer-grid a { color: var(--ink-soft); text-decoration: none; border-bottom: 1px dotted transparent; }
-  .footer-grid a:hover { color: var(--accent); border-bottom-color: currentColor; }
-  .footer-meta { letter-spacing: 0.02em; }
-  .footer-right { color: var(--ink-faint); }
-  @media (min-width: 720px) { .footer-right { text-align: right; } }
-  /* Family tagline — the standard Indifferencer-universe sign-off */
-  .footer-fineprint {
-    margin-top: 0.35rem;
-    padding-bottom: 1.5rem;
-    color: var(--ink-faint);
-    font-size: 0.74rem;
-    letter-spacing: 0.02em;
-  }
-
-  /* ====== ENTRANCE — quick, restrained, corporate ====== */
-  @keyframes rise {
-    from { opacity: 0; transform: translateY(6px); }
-    to   { opacity: 1; transform: translateY(0); }
-  }
-  .topbar    { animation: rise 0.4s ease-out both; }
-  .tile-stage{ animation: rise 0.5s ease-out 0.10s both; }
-  .hero-copy { animation: rise 0.5s ease-out 0.18s both; }
-  .notice    { animation: rise 0.5s ease-out 0.28s both; }
-  .features  { animation: rise 0.5s ease-out 0.36s both; }
-  .resident  { animation: rise 0.5s ease-out 0.44s both; }
-  .directory { animation: rise 0.5s ease-out 0.52s both; }
-
-  @media (prefers-reduced-motion: reduce) {
-    *, *::before, *::after { animation: none !important; transition: none !important; }
-  }
-</style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
 </head>
 <body>
+<x-dc>
+<helmet>
+<title>Indiffware — The Hall of Recreational Industry</title>
+<meta name="description" content="Indiffware — the recreational software division of Indifferencer LLC.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 240 150'%3E%3Cpath fill='%23EFE6D2' fill-rule='evenodd' d='M 4,74 C 4,64 4,58 6,54 C 9,51 16,50 26,48 C 40,46 52,45 58,43 C 61,42 62,39 63,35 C 64,28 70,24 75,26 C 79,28 80,34 79,38 C 82,32 88,29 92,32 C 96,35 95,42 92,46 C 102,45 112,45 122,44 C 150,42 178,48 196,62 C 210,73 216,92 214,108 C 213,120 208,128 202,132 L 40,132 C 24,131 12,116 6,96 C 4,88 4,80 4,74 Z M 39,51 L 57,51 C 54,57 44,57 39,51 Z M 9,63 C 12,62 14,63 15,65 C 12,66 10,65 9,63 Z M 34,124 C 48,110 66,108 80,116 C 88,121 92,127 94,132 L 89,132 C 87,127 84,123 77,119 C 66,113 50,115 38,127 Z M 196,132 C 178,120 172,100 178,84 L 182,85 C 177,100 182,119 199,130 Z'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="./image-slot.js"></script>
+<style>
+  body{margin:0;background:#101820;color:#EFE6D2;font-family:Georgia,'Times New Roman',serif}
+  a{color:#EFE6D2;text-decoration:none}
+  a:hover{color:#C9A227}
+  ::selection{background:#C9A227;color:#101820}
+</style>
+</helmet>
+<template id="__bundler_thumbnail"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><rect width="200" height="200" fill="#16304C"></rect><g transform="translate(40,55)"><path fill="#C9A227" fill-rule="evenodd" transform="scale(0.5)" d="M 4,74 C 4,64 4,58 6,54 C 9,51 16,50 26,48 C 40,46 52,45 58,43 C 61,42 62,39 63,35 C 64,28 70,24 75,26 C 79,28 80,34 79,38 C 82,32 88,29 92,32 C 96,35 95,42 92,46 C 102,45 112,45 122,44 C 150,42 178,48 196,62 C 210,73 216,92 214,108 C 213,120 208,128 202,132 L 40,132 C 24,131 12,116 6,96 C 4,88 4,80 4,74 Z M 39,51 L 57,51 C 54,57 44,57 39,51 Z M 9,63 C 12,62 14,63 15,65 C 12,66 10,65 9,63 Z M 34,124 C 48,110 66,108 80,116 C 88,121 92,127 94,132 L 89,132 C 87,127 84,123 77,119 C 66,113 50,115 38,127 Z M 196,132 C 178,120 172,100 178,84 L 182,85 C 177,100 182,119 199,130 Z"></path></g><text x="100" y="150" font-family="Georgia,serif" font-size="18" letter-spacing="4" text-anchor="middle" fill="#EFE6D2">INDIFFWARE</text></svg></template>
+<div style="min-height:100vh;background:#101820;color:#EFE6D2;display:flex;flex-direction:column;align-items:center">
 
-  <!-- Top strip: evokes app chrome without copying anyone's actual mark -->
-  <div class="topbar">
-    <div class="wrap topbar-row">
-      <div class="topbar-left">
-        <span class="dot-grid" aria-hidden="true">
-          <span></span><span></span><span></span>
-          <span></span><span></span><span></span>
-          <span></span><span></span><span></span>
+  <section style="box-sizing:border-box;width:100%;background:#16304C;display:flex;flex-direction:column;align-items:center;padding:20px 9px 25px">
+    <img src="uploads/IndyGoogie.png" alt="Indy — the Indiffware badge" style="display:block;width:50%;max-width:210px"><br><div style="font-family:Oswald,Georgia,serif;font-weight:500;font-size:17px;letter-spacing:.58em;text-transform:uppercase;text-indent:.58em;text-align:center;color:#EFE6D2">Indifferencer LLC Presents</div>
+  </section>
+
+  <section style="display:none">
+    <svg viewBox="0 0 520 400" width="100%" style="max-width:520px;display:block" role="img" aria-label="Indy, elevated as a monument">
+      <defs>
+        <linearGradient id="brass" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#E8CE7A"></stop>
+          <stop offset="0.55" stop-color="#C9A227"></stop>
+          <stop offset="1" stop-color="#8a6d13"></stop>
+        </linearGradient>
+      </defs>
+      <g fill="#EFE6D2" opacity="0.8">
+        <circle cx="258" cy="34" r="1.6"></circle><circle cx="238" cy="52" r="1.1"></circle><circle cx="280" cy="48" r="1.3"></circle><circle cx="262" cy="66" r="0.9"></circle><circle cx="300" cy="30" r="1"></circle><circle cx="222" cy="30" r="0.9"></circle><circle cx="290" cy="72" r="1.5"></circle><circle cx="210" cy="64" r="1.2"></circle><circle cx="246" cy="18" r="1"></circle><circle cx="316" cy="56" r="0.9"></circle><circle cx="196" cy="44" r="1"></circle><circle cx="330" cy="38" r="1.2"></circle><circle cx="178" cy="70" r="0.8"></circle><circle cx="344" cy="66" r="0.8"></circle><circle cx="272" cy="12" r="0.8"></circle>
+      </g>
+      <g stroke="#EFE6D2" stroke-width="1" opacity="0.5">
+        <line x1="180" y1="330" x2="196" y2="196"></line>
+        <line x1="260" y1="330" x2="260" y2="212"></line>
+        <line x1="340" y1="330" x2="324" y2="196"></line>
+      </g>
+      <g transform="translate(140,90) scale(1.0)">
+        <path fill="url(#brass)" fill-rule="evenodd" d="M 4,74 C 4,64 4,58 6,54 C 9,51 16,50 26,48 C 40,46 52,45 58,43 C 61,42 62,39 63,35 C 64,28 70,24 75,26 C 79,28 80,34 79,38 C 82,32 88,29 92,32 C 96,35 95,42 92,46 C 102,45 112,45 122,44 C 150,42 178,48 196,62 C 210,73 216,92 214,108 C 213,120 208,128 202,132 L 40,132 C 24,131 12,116 6,96 C 4,88 4,80 4,74 Z M 39,51 L 57,51 C 54,57 44,57 39,51 Z M 9,63 C 12,62 14,63 15,65 C 12,66 10,65 9,63 Z M 34,124 C 48,110 66,108 80,116 C 88,121 92,127 94,132 L 89,132 C 87,127 84,123 77,119 C 66,113 50,115 38,127 Z M 196,132 C 178,120 172,100 178,84 L 182,85 C 177,100 182,119 199,130 Z"></path>
+      </g>
+      <g stroke="#EFE6D2" opacity="0.55" stroke-width="1">
+        <line x1="0" y1="332" x2="520" y2="332"></line>
+        <line x1="260" y1="332" x2="60" y2="400"></line>
+        <line x1="260" y1="332" x2="180" y2="400"></line>
+        <line x1="260" y1="332" x2="340" y2="400"></line>
+        <line x1="260" y1="332" x2="460" y2="400"></line>
+        <line x1="30" y1="352" x2="490" y2="352"></line>
+        <line x1="90" y1="378" x2="430" y2="378"></line>
+      </g>
+      <g stroke="#EFE6D2" opacity="0.4" stroke-width="1" fill="none">
+        <path d="M 60,332 L 60,296 L 120,296 L 120,332"></path>
+        <path d="M 400,332 L 400,296 L 460,296 L 460,332"></path>
+        <line x1="75" y1="296" x2="75" y2="332"></line><line x1="90" y1="296" x2="90" y2="332"></line><line x1="105" y1="296" x2="105" y2="332"></line>
+        <line x1="415" y1="296" x2="415" y2="332"></line><line x1="430" y1="296" x2="430" y2="332"></line><line x1="445" y1="296" x2="445" y2="332"></line>
+      </g>
+    </svg>
+  </section>
+
+  <section style="box-sizing:border-box;width:100%;background:#101820;display:flex;flex-direction:column;align-items:center;text-align:center;padding:54px 24px 30px">
+   
+    <h1 style="margin:16px 0 0;font-weight:700;font-size:38px;letter-spacing:.22em;text-transform:uppercase;text-indent:.22em;color:#D9BFD2;line-height:1">The Hall of Recreational Industry</h1>
+    <div style="display:flex;align-items:baseline;gap:26px;margin-top:20px;font-family:Oswald,Georgia,serif;font-size:12px;letter-spacing:.26em;text-transform:uppercase">
+      <span style="opacity:.75">Random Idle Diversions</span>
+      <span style="color:#C9A227;font-size:22px;font-family:Georgia,serif;font-weight:700;letter-spacing:.12em">Online Amusements</span>
+      <span style="opacity:.75">Single Player Distractions</span>
+    </div>
+   
+    <div style="display:flex;gap:34px;flex-wrap:wrap;justify-content:center;margin-top:30px;font-family:Oswald,Georgia,serif;font-size:10px;letter-spacing:.22em;text-transform:uppercase;opacity:.85">
+      <span><strong style="font-size:15px;letter-spacing:0;margin-right:7px;color:#C9A227">3</strong>Titles Catalogued</span>
+      <span><strong style="font-size:15px;letter-spacing:0;margin-right:7px;color:#C9A227">0</strong>Genres Identified</span>
+      <span><strong style="font-size:15px;letter-spacing:0;margin-right:7px;color:#C9A227">1</strong>Capybara, Supervisory</span>
+    </div>
+  </section>
+
+  <section style="box-sizing:border-box;width:100%;max-width:960px;padding:30px 24px 10px">
+    <div style="display:flex;align-items:center;gap:16px;margin-bottom:34px">
+      <span style="flex:1;height:1px;background:rgba(239,230,210,.35)"></span>
+      <span style="font-family:Oswald,Georgia,serif;font-size:12px;letter-spacing:.32em;text-transform:uppercase;opacity:.75">The Exhibit Floor</span>
+      <span style="flex:1;height:1px;background:rgba(239,230,210,.35)"></span>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:34px">
+      <a href="https://corporatecirc.us/telemetry" style="display:flex;flex-direction:column;gap:10px;border-top:3px solid #C9A227;padding-top:16px" style-hover="color:#EFE6D2;background:rgba(239,230,210,.04)">
+        <span style="font-family:Oswald,Georgia,serif;font-size:10px;letter-spacing:.24em;text-transform:uppercase;color:#C9A227">Pavilion No. 1 &middot; Now Exhibiting</span>
+        <span style="display:block;height:210px;margin:4px 0 2px">
+          <image-slot id="telemetry-art" shape="rect" fit="contain" src="uploads/LinemanIndy.png" placeholder="Drop Telemetry exhibit art"></image-slot>
         </span>
-        <span><span class="mark-ai">AI</span>lbums</span>
-      </div>
-      <div class="topbar-right">
-        <span>Your organization</span>
-        <span class="help" aria-hidden="true">i</span>
-      </div>
-    </div>
-  </div>
-
-  <div class="wrap">
-
-    <!-- HERO -->
-    <section class="hero">
-      <div class="tile-stage">
-        <div class="app-tile" aria-hidden="true">
-          <div class="tile-page tile-page-2"></div>
-          <div class="tile-page tile-page-1"></div>
-          <div class="tile-face">
-            <span class="tile-glyph"><b>A</b><i></i><b>I</b></span>
-          </div>
-        </div>
-      </div>
-
-      <div class="hero-copy">
-        <span class="eyebrow">Already enabled for your organization</span>
-
-        <h1 class="wordmark">
-          <span class="ai">AI</span><span class="rest">lbums</span><span class="tld">.com</span>
-          <span class="badge">Now with AI<span class="star">*</span></span>
-        </h1>
-
-        <p class="lede">Your organization&rsquo;s home for the small tools that keep work moving.</p>
-        <p class="subde">Centralized, governed, and available to anyone with the appropriate permissions. You may already be using it.</p>
-
-        <div class="actions">
-          <a class="btn btn-primary" href="#applications">Open</a>
-          <a class="btn btn-ghost" href="https://indifferencer.com">Learn more</a>
-        </div>
-
-        <p class="micro"><span class="star">*</span> Actually Indifferencer.</p>
-      </div>
-    </section>
-
-    <!-- NOTICE BAR -->
-    <div class="notice">
-      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-        <circle cx="8" cy="8" r="7" stroke="#2f7a4d" stroke-width="1.4"/>
-        <circle cx="8" cy="5" r="0.9" fill="#2f7a4d"/>
-        <rect x="7.3" y="7" width="1.4" height="4.4" rx="0.7" fill="#2f7a4d"/>
-      </svg>
-      <span>This application was enabled for your organization by your administrator. No action is required.</span>
-    </div>
-
-    <!-- FEATURES -->
-    <section class="features">
-      <div class="card">
-        <h3><span class="pip"></span>Centralized</h3>
-        <p>Everything lives in one place. Discoverable by anyone with the appropriate permissions, and a few without.</p>
-      </div>
-      <div class="card">
-        <h3><span class="pip"></span>Compliant</h3>
-        <p>Aligned with the standards your organization has not yet been asked to name. Audit-ready in principle.</p>
-      </div>
-      <div class="card">
-        <h3><span class="pip"></span>Always available</h3>
-        <p>Provisioned at some point. No one has needed to check since, which is generally taken as a good sign.</p>
-      </div>
-    </section>
-
-    <!-- RESIDENT: SpecLoc (formally Spec Locator). The Sherlock homophone is deliberate;
-         the wink lives in one line — "Elementary specification retrieval." — and nowhere else. -->
-    <!-- SpecLoc (Spec Locator) retired 2026-08-10 — deprecated deterministic tool. The "AI means nothing" joke it anchored is now carried by the hero footnote ("AI stands for Actually Indifferencer"), which needs no resident tool to land. Supersede, don't scrub. -->
-
-    <!-- DIRECTORY: the rest of the family. Arrives in the "we did this for you" voice —
-         provisioned alongside SpecLoc, not replacing it. The parent tile closes the loop. -->
-    <section class="directory" id="applications">
-      <span class="r-eyebrow">Included in your plan</span>
-      <h2 class="dir-head">The Indifferencer family of products</h2>
-      <p class="dir-sub">Provisioned automatically. You may already be using them. No action is required.</p>
-
-      <div class="app-grid">
-
-        <a class="app c-herd" href="https://codedrovers.com">
-          <span class="app-ic"><span class="stack"></span><span class="face"><svg viewBox="0 0 24 24"><path d="M8 7l-4 5 4 5M16 7l4 5-4 5"/></svg></span></span>
-          <span class="app-tx"><span class="app-nm">Herd</span><span class="app-page">CodeDrovers</span><span class="app-ds">Drives data forward. Does not ask where.</span></span>
-        </a>
-
-        <a class="app c-bigtop" href="https://corporatecirc.us">
-          <span class="app-ic"><span class="stack"></span><span class="face"><svg viewBox="0 0 24 24"><path d="M12 3 L21 20 H3 Z"/><path d="M12 3 V20 M7 20 l5-8 5 8"/></svg></span></span>
-          <span class="app-tx"><span class="app-nm">Bigtop</span><span class="app-page">The Corporate Circus</span><span class="app-ds">Corporate spectacle. Badges required at all times.</span></span>
-        </a>
-
-        <a class="app c-quorum" href="https://indifferencer.com/meetings">
-          <span class="app-ic"><span class="stack"></span><span class="face"><svg viewBox="0 0 24 24"><circle cx="8" cy="9" r="3"/><circle cx="16" cy="9" r="3"/><path d="M3 19c0-3 2.5-4 5-4s5 1 5 4M13 19c0-3 2.5-4 5-4s3 1 3 4"/></svg></span></span>
-          <span class="app-tx"><span class="app-nm">Quorum</span><span class="app-page">Meetings: The Blathering</span><span class="app-ds">0 decisions reached. Provisioned indefinitely.</span></span>
-        </a>
-
-        <a class="app c-find" href="https://indifferencer.com/postmortem">
-          <span class="app-ic"><span class="stack"></span><span class="face"><svg viewBox="0 0 24 24"><path d="M6 3h9l3 3v15H6z"/><path d="M9 11h6M9 15h6"/></svg></span></span>
-          <span class="app-tx"><span class="app-nm">Findings</span><span class="app-page">The Post Mortem</span><span class="app-ds">Root cause pending. Blame assigned.</span></span>
-        </a>
-
-        <a class="app c-docket" href="https://indifferencer.com/courtroom">
-          <span class="app-ic"><span class="stack"></span><span class="face"><svg viewBox="0 0 24 24"><path d="M12 3v18M6 21h12M4 9l5-2 5 2M14 7l5-2 5 2"/></svg></span></span>
-          <span class="app-tx"><span class="app-nm">Docket</span><span class="app-page">The Corporate Courtroom</span><span class="app-ds">Exhibits filed: 100. Verdicts: 0.</span></span>
-        </a>
-
-        <a class="app c-side" href="https://corporatecirc.us/midway">
-          <span class="app-ic"><span class="stack"></span><span class="face"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 3v18M3 12h18"/></svg></span></span>
-          <span class="app-tx"><span class="app-nm">Sideshow</span><span class="app-page">The Midway</span><span class="app-ds">Ladies and Gentlemen, step right up.</span></span>
-        </a>
-
-        <a class="app c-provision" href="https://colaudly.com">
-          <span class="app-ic"><span class="stack"></span><span class="face"><svg viewBox="0 0 24 24"><path d="M7 18a4 4 0 0 1 0-8 5 5 0 0 1 9.7-1.5A3.5 3.5 0 0 1 17 18z"/></svg></span></span>
-          <span class="app-tx"><span class="app-nm">Provision</span><span class="app-page">CoLaudly</span><span class="app-ds">Your Role. Strategically aligned.</span></span>
-        </a>
-
-        <a class="app c-bunker" href="https://indifferencer.com/warroom">
-          <span class="app-ic"><span class="stack"></span><span class="face"><svg viewBox="0 0 24 24"><path d="M12 3l7 3v6c0 4-3 7-7 9-4-2-7-5-7-9V6z"/></svg></span></span>
-          <span class="app-tx"><span class="app-nm">Bunker</span><span class="app-page">The War Room</span><span class="app-ds">Reduce their Bandwidth to zero. Or outlast them.</span></span>
-        </a>
-
-        <a class="app c-pipeline" href="https://indifferencer.com/subsidiaries">
-          <span class="app-ic"><span class="stack"></span><span class="face"><svg viewBox="0 0 24 24"><path d="M4 5h16l-6 7v6l-4 2v-8z"/></svg></span></span>
-          <span class="app-tx"><span class="app-nm">Pipeline</span><span class="app-page">The Acquisitions Division</span><span class="app-ds">Name TBD. Purpose TBD. The pipeline is the product.</span></span>
-        </a>
-
-        <a class="app c-specimen" href="https://indifferencer.com/field-guide">
-          <span class="app-ic"><span class="stack"></span><span class="face"><svg viewBox="0 0 24 24"><path d="M12 6c-2-1.5-5-1.5-8 0v12c3-1.5 6-1.5 8 0 2-1.5 5-1.5 8 0V6c-3-1.5-6-1.5-8 0z"/></svg></span></span>
-          <span class="app-tx"><span class="app-nm">Specimen</span><span class="app-page">The Field Guide</span><span class="app-ds">Presence of animals not guaranteed.</span></span>
-        </a>
-
-        <a class="app c-oracle" href="https://corporatecirc.us/directarotry">
-          <span class="app-ic"><span class="stack"></span><span class="face"><svg viewBox="0 0 24 24"><path d="M2 12s4-6 10-6 10 6 10 6-4 6-10 6-10-6-10-6z"/><circle cx="12" cy="12" r="2.6"/></svg></span></span>
-          <span class="app-tx"><span class="app-nm">Oracle</span><span class="app-page">The Direc-TAROT-ry</span><span class="app-ds">The outcome was foretold. And pre-approved.</span></span>
-        </a>
-
-        <a class="app c-shill" href="https://drylybleakers.com">
-          <span class="app-ic"><span class="stack"></span><span class="face"><svg viewBox="0 0 24 24"><path d="M3 17c0-2.6 1.4-4 3.5-4s3.5 1.4 3.5 4M14 17c0-2.6 1.4-4 3.5-4s3.5 1.4 3.5 4"/></svg></span></span>
-          <span class="app-tx"><span class="app-nm">Shill</span><span class="app-page">The Dryly Bleakers</span><span class="app-ds">Find the lady. You can't win if you don't play.</span></span>
-        </a>
-
-        <a class="app c-masthead" href="https://thecarlinist.com">
-          <span class="app-ic"><span class="stack"></span><span class="face"><svg viewBox="0 0 24 24"><path d="M4 5h13v14H4zM17 8h3v9a2 2 0 0 1-2 2M7 8h7M7 11h7M7 14h4"/></svg></span></span>
-          <span class="app-tx"><span class="app-nm">Masthead</span><span class="app-page">The Carlinist</span><span class="app-ds">Question everything. Including this tile.</span></span>
-        </a>
-
-        <!-- the loop up to the parent -->
-        <a class="app c-parent" href="https://indifferencer.com">
-          <span class="app-ic"><span class="stack"></span><span class="face"><svg viewBox="0 0 24 24"><rect x="3" y="8" width="18" height="13" rx="1"/><path d="M8 8V5h8v3M3 13h18"/></svg></span></span>
-          <span class="app-tx"><span class="app-nm">Indifferencer&nbsp;LLC</span><span class="app-page">The parent organization</span><span class="app-ds">One carbon &  several silicon-based contributors.</span><span class="app-flag">Parent</span></span>
-        </a>
-
-        <!-- the mirror: you are already here -->
-        <span class="app current" aria-current="page">
-          <span class="app-ic"><span class="stack"></span><span class="face"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="1"/><path d="M4 15 l4-4 3 3 4-5 5 6"/></svg></span></span>
-          <span class="app-tx"><span class="app-nm">AIlbums</span><span class="app-page">This application</span><span class="app-ds">You are here. No action is required.</span><span class="app-flag">Current</span></span>
+        <span style="font-size:22px;letter-spacing:.03em;line-height:1.3">The Telemetry of Tomorrow</span>
+        <span style="font-size:13.5px;line-height:1.65;opacity:.7">Field-documented observability payloads, rendered in a Populuxe register. On loan from the Corporate Circus.</span>
+        <span style="font-family:Oswald,Georgia,serif;font-size:10.5px;letter-spacing:.22em;text-transform:uppercase;color:#C9A227;margin-top:auto">Enter →</span>
+      </a>
+      <a href="https://ailbums.com/queue" style="display:flex;flex-direction:column;gap:10px;border-top:3px solid #C9A227;padding-top:16px" style-hover="color:#EFE6D2;background:rgba(239,230,210,.04)">
+        <span style="font-family:Oswald,Georgia,serif;font-size:10px;letter-spacing:.24em;text-transform:uppercase;color:#C9A227">Pavilion No. 2 &middot; Now Operating</span>
+        <span style="display:block;height:210px;margin:4px 0 2px">
+          <image-slot id="queue-art" shape="rect" fit="contain" src="uploads/DiskIndy.png" placeholder="Drop Monthly Queue exhibit art"></image-slot>
         </span>
-
-      </div>
-    </section>
-
-  </div>
-
-  <!-- FOOTER: the family resemblance lives here, in the voice, not the palette -->
-  <footer>
-    <div class="wrap footer-grid">
-      <span class="footer-meta">A subsidiary of <a href="https://indifferencer.com">Indifferencer LLC</a> Part of the Indifferencer family of products. Some settings may have been configured on your behalf.</span>
-      <span class="footer-right">AIlbums &middot; Version 1.0 &middot; Build 16.0.17328 &middot; Your administrator manages updates.</span>
+        <span style="font-size:22px;letter-spacing:.03em;line-height:1.3">The Monthly Queue</span>
+        <span style="font-size:13.5px;line-height:1.65;opacity:.7">Thirty days, one stamp, and a caseload that only slows down on Fridays.</span>
+        <span style="font-family:Oswald,Georgia,serif;font-size:10.5px;letter-spacing:.22em;text-transform:uppercase;color:#C9A227;margin-top:auto">Enter →</span>
+      </a>
+      <sc-if value="{{ showDev }}" hint-placeholder-val="{{ true }}">
+        <div style="display:flex;flex-direction:column;gap:10px;border-top:3px dashed rgba(239,230,210,.45);padding-top:16px;opacity:.55">
+          <span style="font-family:Oswald,Georgia,serif;font-size:10px;letter-spacing:.24em;text-transform:uppercase">Pavilion No. 3 &middot; Pardon Our Progress</span>
+          <span style="display:block;height:210px;margin:4px 0 2px">
+            <image-slot id="fragile-art" shape="rect" fit="contain" src="uploads/AgileIndy.png" placeholder="Drop frAgile Ritual exhibit art"></image-slot>
+          </span>
+          <span style="font-size:22px;letter-spacing:.03em;line-height:1.3">The frAgile Ritual</span>
+          <span style="font-size:13.5px;line-height:1.65;opacity:.8">Under construction. Specifications pending.</span>
+          <span style="font-family:Oswald,Georgia,serif;font-size:10.5px;letter-spacing:.22em;text-transform:uppercase;margin-top:auto">Soon</span>
+        </div>
+      </sc-if>
     </div>
-    <div class="wrap">
-      <p class="footer-fineprint">No humans were harmed in the production of this site. No humans were consulted.</p>
-    </div>
+  </section>
+
+  <footer style="box-sizing:border-box;margin-top:auto;width:100%;max-width:960px;padding:56px 24px 42px;display:flex;flex-direction:column;align-items:center;gap:9px;text-align:center;font-size:11.5px;opacity:.6;line-height:1.7">
+    <sc-if value="{{ showMotto }}" hint-placeholder-val="{{ true }}">
+     <div> <p style="margin:34px 0 0;max-width:150ch;font-size:15px;line-height:1.7;font-style:italic;opacity:.8;text-wrap:pretty">The Indiffware Hall of Recreational Industry is a Permanent Exhibit.  </p></div><BR>
+    </sc-if>
+    <div>A subsidiary of <a href="https://indifferencer.com" style="text-decoration:underline;text-underline-offset:3px">Indifferencer LLC</a> &middot; See also <a href="https://corporatecirc.us" style="text-decoration:underline;text-underline-offset:3px">The Corporate Circus</a></div>
+    <div>No humans were harmed in the production of these games. No humans were consulted.</div>
+    <div>&copy; Indifferencer LLC &middot; Replay value is a displayed value only.</div>
   </footer>
-
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;showDev&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Exhibits&quot;},&quot;showMotto&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Footer&quot;}}">
+class Component extends DCLogic {
+  renderVals() {
+    return {
+      showDev: this.props.showDev ?? true,
+      showMotto: this.props.showMotto ?? true,
+    };
+  }
+}
+</script>
 </body>
 </html>
