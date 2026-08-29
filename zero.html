@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Inbox Zero — Don't Let Your Mailbox Queue Get Out of Control</title>
+<title>Inbox Zero — Don't Let Your Monthly Mailbox Queue Get Out of Control</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Special+Elite&family=Caveat:wght@600&display=swap" rel="stylesheet">
@@ -135,6 +135,18 @@
   .welcome button{margin-top:16px; border:1.5px solid #e8ddc2; background:rgba(20,14,8,.55); color:#e8ddc2;
     border-radius:6px; padding:11px 22px; font-family:'Special Elite',monospace; font-size:14px; letter-spacing:.06em; cursor:pointer}
   .welcome button:active{transform:scale(.98)}
+  /* While You Were Out — recap card (matches the original beat) */
+  .recap{background:#f6ecd4; border:1px solid #c9b88f; border-radius:6px; box-shadow:0 12px 34px rgba(0,0,0,.55);
+    padding:20px 24px; width:min(340px,88vw); font-family:'Special Elite',monospace; color:#3a2e1c}
+  .recap .rh{font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:#8a3a2a;
+    border-bottom:1px solid #c9b88f; padding-bottom:6px; margin-bottom:12px}
+  .recap .rbig{text-align:center; margin-bottom:14px; font-size:15px; line-height:1.5}
+  .recap .rnum{font-size:38px; font-weight:700; display:inline-block; margin:2px 0}
+  .recap .rlabel{font-size:13px}
+  .recap .rstats{font-size:13px; line-height:1.7; margin-bottom:16px}
+  .recap button{border:1.5px solid #3a2e1c; background:transparent; border-radius:4px; padding:7px 14px;
+    font-family:inherit; font-size:12px; color:#3a2e1c; cursor:pointer}
+  .recap button:active{transform:scale(.98)}
 </style>
 </head>
 <body>
@@ -176,9 +188,10 @@
   </div>
 
   <div class="scrim" id="rscrim">
-    <div class="mgrnote">
-      <div class="mh">While You Were Out</div>
-      <p>You were gone <b><span id="rGone"></span></b>.<br><span id="rArrived">0</span> new emails arrived while you were away.<br><span id="rLate">0</span> went late and escalated to the Manager.</p>
+    <div class="recap">
+      <div class="rh">While You Were Out</div>
+      <div class="rbig">You were gone <b><span id="rGone"></span></b>.<br><span class="rnum" id="rArrived">0</span><br><span class="rlabel">new emails arrived</span></div>
+      <div class="rstats">✓ <span id="rClosed">0</span> handled themselves while you were away<br>💀 <span id="rLate">0</span> went late and escalated to the Manager</div>
       <button id="btnRecap">Back to the inbox →</button>
     </div>
   </div>
@@ -261,10 +274,10 @@
     S.tokens=(S.tokens||[]).map(function(t){return {id:t.id,due:Math.min(DAYS,t.due),text:t.text,sev:t.sev};});
     var elapsed = lastTs ? (Date.now()-lastTs) : 0;
     if(elapsed>90000){                                   // gone > ~90s → "while you were out"
-      var arrived=Math.min(Math.floor(elapsed/45000),40), late=Math.min(Math.floor(elapsed/300000),8);
-      for(var a=0;a<arrived && S.tokens.length<16;a++){ S.tokens.push(mkToken(S.day, S.upgrades.extend?2:0)); S.monthNew++; }
-      S.LATE+=late; S.escalatedMonth+=late; S.REPUTATION=Math.max(-10,S.REPUTATION-late*2);
-      recap={gone:fmtElapsed(elapsed), arrived:arrived, late:late};
+      var arrived=Math.min(Math.floor(elapsed/45000),40), late=Math.min(Math.floor(elapsed/300000),8), closed=Math.round(arrived*0.15);
+      for(var a=0;a<(arrived-closed) && S.tokens.length<16;a++){ S.tokens.push(mkToken(S.day, S.upgrades.extend?2:0)); }
+      S.monthNew+=arrived; S.LATE+=late; S.escalatedMonth+=late; S.REPUTATION=Math.max(-10,S.REPUTATION-late*2);
+      recap={gone:fmtElapsed(elapsed), arrived:arrived, closed:closed, late:late};
     }
   }
   function save(){
@@ -381,6 +394,7 @@
   function showRecap(){ recapOpen=true;
     document.getElementById("rGone").textContent=recap.gone;
     document.getElementById("rArrived").textContent=recap.arrived;
+    document.getElementById("rClosed").textContent=recap.closed;
     document.getElementById("rLate").textContent=recap.late;
     rscrim.classList.add("on");
   }
