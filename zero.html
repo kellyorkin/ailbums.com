@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Inbox Zero — Don't Let Your Monthly Mailbox Queue Get Out of Control</title>
+<title>Inbox Zero — Don't Let Your Mailbox Queue Get Out of Control</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Special+Elite&family=Caveat:wght@600&display=swap" rel="stylesheet">
@@ -168,10 +168,18 @@
   </div>
   <div class="hint">Tips and Tricks to a Clean Mailbox · Tap a Message to Reply, or Click a Sticky Note to Buy Yourself Some More Time.</div>
 
-  <div class="scrim on" id="wscrim">
+  <div class="scrim" id="wscrim">
     <div class="welcome">
       <img src="assets/desk/WelcomeTacky.png" alt="Welcome to Inbox Zero — a game of queues, consequences & choices">
       <button id="btnWelcome">Start →</button>
+    </div>
+  </div>
+
+  <div class="scrim" id="rscrim">
+    <div class="mgrnote">
+      <div class="mh">While You Were Out</div>
+      <p>You were gone <b><span id="rGone"></span></b>.<br><span id="rArrived">0</span> new emails arrived while you were away.<br><span id="rLate">0</span> went late and escalated to the Manager.</p>
+      <button id="btnRecap">Back to the inbox →</button>
     </div>
   </div>
 
@@ -228,9 +236,10 @@
   ];
   var COSTS={slow:25,extend:40,deflect:60};
   var SAVE="monthly-queue-flat-save";
-  var welcomeOpen=true;   // title screen shows on each load
+  var welcomeOpen=true;   // gated in boot: only shows on a first visit
+  var recapOpen=false, firstVisit=false, recap=null;
 
-  var S={tokens:[],day:1,month:1,ftr:15,LATE:0,REPUTATION:10,monthNew:0,escalatedMonth:0,paceMode:"wednesday",sel:null,tacky:false,mgrLevel:0,mgr:null,upgrades:{slow:false,extend:false,deflect:false}};
+  var S={tokens:[],day:1,month:1,ftr:15,LATE:0,REPUTATION:10,monthNew:0,escalatedMonth:0,paceMode:"wednesday",sel:null,tacky:false,mgrLevel:0,mgr:null,ts:0,upgrades:{slow:false,extend:false,deflect:false}};
   var tick=null;
 
   function rnd(n){return Math.floor(Math.random()*n);}
@@ -242,13 +251,24 @@
   function perDay(){return PACE[S.paceMode][1];}
   function interval(){return PACE[S.paceMode][0];}
 
+  function fmtElapsed(ms){ var h=Math.floor(ms/3600000), m=Math.floor((ms%3600000)/60000);
+    return h ? (h+"h "+m+"m") : (m+" minute"+(m===1?"":"s")); }
   function load(){
     var s=null; try{s=JSON.parse(localStorage.getItem(SAVE));}catch(e){}
-    if(!s){ S.tokens=[mkToken(1),mkToken(1),mkToken(1)]; S.monthNew=3; return; }
+    if(!s){ firstVisit=true; S.tokens=[mkToken(1),mkToken(1),mkToken(1)]; S.monthNew=3; return; }
+    var lastTs=s.ts||0;
     for(var k in s){ if(S.hasOwnProperty(k)) S[k]=s[k]; }
     S.tokens=(S.tokens||[]).map(function(t){return {id:t.id,due:Math.min(DAYS,t.due),text:t.text,sev:t.sev};});
+    var elapsed = lastTs ? (Date.now()-lastTs) : 0;
+    if(elapsed>90000){                                   // gone > ~90s → "while you were out"
+      var arrived=Math.min(Math.floor(elapsed/45000),40), late=Math.min(Math.floor(elapsed/300000),8);
+      for(var a=0;a<arrived && S.tokens.length<16;a++){ S.tokens.push(mkToken(S.day, S.upgrades.extend?2:0)); S.monthNew++; }
+      S.LATE+=late; S.escalatedMonth+=late; S.REPUTATION=Math.max(-10,S.REPUTATION-late*2);
+      recap={gone:fmtElapsed(elapsed), arrived:arrived, late:late};
+    }
   }
   function save(){
+    S.ts=Date.now();
     try{localStorage.setItem(SAVE,JSON.stringify(S));}catch(e){}
   }
 
@@ -262,7 +282,7 @@
   }
 
   function dayTick(){
-    if(S.sel!==null || S.tacky || S.mgr!==null || welcomeOpen) return;   // pause while any card (or welcome) is open
+    if(S.sel!==null || S.tacky || S.mgr!==null || welcomeOpen || recapOpen) return;   // pause while any card is open
     var pd = S.upgrades.slow ? Math.max(1, perDay()-1) : perDay();
     S.day++;
     if(S.day>DAYS){ S.month++; S.day=1; S.monthNew=0; S.escalatedMonth=0;
@@ -356,6 +376,15 @@
   document.getElementById("btnDefer").onclick=function(){ var t=selectedToken(); if(t) deferToken(t); };
   document.getElementById("btnClose").onclick=function(){ S.sel=null; closeSel(); };
   document.getElementById("btnWelcome").onclick=function(){ welcomeOpen=false; document.getElementById("wscrim").classList.remove("on"); };
+
+  var rscrim=document.getElementById("rscrim");
+  function showRecap(){ recapOpen=true;
+    document.getElementById("rGone").textContent=recap.gone;
+    document.getElementById("rArrived").textContent=recap.arrived;
+    document.getElementById("rLate").textContent=recap.late;
+    rscrim.classList.add("on");
+  }
+  document.getElementById("btnRecap").onclick=function(){ recapOpen=false; rscrim.classList.remove("on"); save(); render(); };
   scrim.onclick=function(e){ if(e.target===scrim){ S.sel=null; closeSel(); } };
 
   document.getElementById("paceTab").onclick=function(){
@@ -391,7 +420,7 @@
   function resetGame(){
     try{localStorage.removeItem(SAVE);}catch(e){}
     S={tokens:[mkToken(1),mkToken(1),mkToken(1)],day:1,month:1,ftr:15,LATE:0,REPUTATION:10,
-       monthNew:3,escalatedMonth:0,paceMode:S.paceMode,sel:null,tacky:false,mgrLevel:0,mgr:null,upgrades:{slow:false,extend:false,deflect:false}};
+       monthNew:3,escalatedMonth:0,paceMode:S.paceMode,sel:null,tacky:false,mgrLevel:0,mgr:null,ts:0,upgrades:{slow:false,extend:false,deflect:false}};
     restartTick(); save(); render();
   }
   function buyUpgrade(k){ if(S.upgrades[k]||S.ftr<COSTS[k]) return; S.ftr-=COSTS[k]; S.upgrades[k]=true; save(); render(); }
@@ -402,7 +431,11 @@
   function restartTick(){ if(tick) clearInterval(tick); tick=setInterval(dayTick, interval()); }
 
   // ---- boot ----
-  load(); render(); restartTick();
+  load();
+  if(firstVisit){ welcomeOpen=true; document.getElementById("wscrim").classList.add("on"); }
+  else { welcomeOpen=false; }
+  render(); restartTick();
+  if(!firstVisit && recap) showRecap();
   setInterval(save,5000);
   window.addEventListener("beforeunload",save);
 })();
