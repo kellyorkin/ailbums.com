@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Homework Zero — Don't Let Your Missing Assignments Pile Up</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Special+Elite&family=Caveat:wght@600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --parchment:#f4ead2; --ink:#4a3a22; --line:rgba(156,138,106,.55);
+    --today:#b06a2a; --today-bg:rgba(232,163,61,.28);
+    --past:rgba(120,100,70,.16); --weekend:rgba(180,160,120,.14);
+    --dark:#2b2119; --cream:#e8ddc2;
+    --sev-R:#6b6b5a; --sev-U:#b06a2a; --sev-S:#8a3a2a;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;min-height:100%}
+  body{
+    font-family:'Special Elite',Georgia,serif; color:var(--ink);
+    background:#bb9059;
+    background-image:
+      radial-gradient(circle at 20% 30%, rgba(88,58,28,.55) 0 1px, transparent 2px),
+      radial-gradient(circle at 68% 62%, rgba(120,82,42,.5) 0 1.5px, transparent 2.5px),
+      radial-gradient(circle at 42% 82%, rgba(70,46,22,.5) 0 1px, transparent 2px),
+      radial-gradient(circle at 85% 22%, rgba(150,112,64,.45) 0 1.5px, transparent 2.5px),
+      radial-gradient(circle at 55% 12%, rgba(92,62,30,.45) 0 1px, transparent 2px),
+      radial-gradient(circle at 12% 72%, rgba(140,100,56,.45) 0 1.5px, transparent 2.5px),
+      linear-gradient(160deg,#c69c66,#a2743e);
+    background-size:23px 23px,31px 31px,17px 17px,29px 29px,19px 19px,27px 27px,100% 100%;
+    background-attachment:fixed;
+    padding:clamp(8px,3vw,28px); -webkit-tap-highlight-color:transparent;
+  }
+  .pad{max-width:960px; margin:0 auto; background:var(--parchment); border-radius:7px;
+    box-shadow:0 10px 30px rgba(0,0,0,.45); overflow:hidden; border:1px solid rgba(0,0,0,.25)}
+  .header{background:var(--dark); color:var(--cream); display:flex; align-items:center;
+    justify-content:space-between; gap:10px; padding:clamp(8px,2.4vw,14px) clamp(10px,3vw,20px);
+    font-size:clamp(11px,3.2vw,16px); letter-spacing:.08em; text-transform:uppercase}
+  .header .right{opacity:.9; font-size:.82em; text-align:right}
+  .board{padding:clamp(8px,2.6vw,18px)}
+  .dow,.cal{display:grid; grid-template-columns:repeat(7,1fr); gap:clamp(3px,1.2vw,7px)}
+  .dow{margin-bottom:clamp(3px,1.2vw,7px)}
+  .dow span{text-align:center; font-size:clamp(8px,2.4vw,11px); letter-spacing:.14em; color:#8a7a5c; padding:2px 0}
+  .cell{position:relative; min-height:clamp(46px,13.5vw,86px); border:1px dashed var(--line);
+    border-radius:4px; background:rgba(250,244,224,.10); padding:3px 4px; touch-action:manipulation; overflow:visible}
+  .cell .num{font-size:clamp(8px,2.6vw,12px); color:#8a7a5c; line-height:1}
+  .cell.past{background:var(--past); opacity:.62} .cell.weekend{background:var(--weekend)}
+  .cell.off{background:rgba(120,100,70,.10); border-style:solid; border-color:rgba(120,100,70,.18)}
+  .cell.today{background:var(--today-bg); border:2px solid var(--today)}
+  .cell.today .num{color:var(--today); font-size:clamp(11px,3.4vw,15px)}
+  .cell .todaytag{font-family:'Caveat',cursive; color:var(--today); font-size:clamp(11px,3.4vw,16px); line-height:.9}
+  .cards{position:absolute; right:3px; bottom:3px; display:flex}
+  /* drawn memo, whole thing tinted by time-to-deadline (calm cream -> red) */
+  .card{position:relative; width:clamp(17px,5.2vw,27px); height:clamp(17px,5.2vw,27px); margin-left:-9px;
+    border:1.5px solid var(--bd,#9a9074); border-radius:2px; background:var(--pp,#ebe6d2);
+    box-shadow:1px 1px 2px rgba(0,0,0,.3); cursor:pointer; transition:transform .08s; overflow:hidden}
+  .card:first-child{margin-left:0}
+  .card:active{transform:scale(.86)}
+  .card .lines{position:absolute; inset:4px 3px 3px 3px;
+    background:repeating-linear-gradient(180deg, transparent 0 2.5px, var(--ink,rgba(92,88,68,.4)) 2.5px 3.5px)}
+  .card .fold{position:absolute; top:0; right:0; width:0; height:0;
+    border-top:7px solid var(--fold,#d8cfb2); border-left:7px solid transparent}
+  .card.u0{--pp:#ebe6d2; --bd:#9a9074; --ink:rgba(92,88,68,.40); --fold:#d8cfb2} /* calm  (5+ days) */
+  .card.u1{--pp:#f2e2b6; --bd:#bd8a34; --ink:rgba(150,110,40,.45); --fold:#e4cf90} /* warming (3-4) */
+  .card.u2{--pp:#f0cf9e; --bd:#c06a26; --ink:rgba(150,80,30,.50); --fold:#e2bd85} /* hot   (1-2)  */
+  .card.u3{--pp:#ecc0a8; --bd:#9a3a26; --ink:rgba(140,50,32,.55); --fold:#dcae98} /* critical (due) */
+  .footer{border-top:1px solid var(--line); margin-top:clamp(6px,2vw,12px); padding-top:clamp(5px,1.6vw,10px);
+    display:flex; justify-content:space-between; font-size:clamp(8px,2.6vw,12px); color:var(--sev-S); letter-spacing:.04em}
+  .hud{display:flex; flex-wrap:wrap; gap:clamp(5px,1.6vw,10px); justify-content:center; margin:clamp(8px,2.5vw,14px) auto 0; max-width:960px}
+  .tab{background:rgba(246,236,212,.92); border-radius:4px; padding:5px 12px; text-align:center; min-width:64px; box-shadow:0 2px 4px rgba(0,0,0,.3)}
+  .tab.click{cursor:pointer; background:rgba(74,58,34,.92); color:var(--cream)}
+  .tab .k{font-size:9px; letter-spacing:.12em; color:#8a7a5c; text-transform:uppercase}
+  .tab.click .k{color:#b8a888}
+  .tab .v{font-size:clamp(14px,4vw,18px); color:var(--ink)}
+  .tab.click .v{color:var(--cream)}
+  .tab .v.face{font-size:clamp(16px,4.6vw,20px)}
+  /* selection panel */
+  .scrim{position:fixed; inset:0; background:rgba(20,14,8,.45); display:none; align-items:center; justify-content:center; z-index:30}
+  .scrim.on{display:flex}
+  .sel{background:#f6ecd4; border:1px solid #c9b88f; box-shadow:0 12px 34px rgba(0,0,0,.55); border-radius:6px;
+    padding:16px 18px; width:min(300px,86vw); transform:rotate(-1deg)}
+  .sel h4{margin:0 0 4px; font-size:15px; color:#3a2e1c}
+  .sel .meta{font-size:11px; color:#8a3a2a; letter-spacing:.06em; margin-bottom:12px}
+  .sel button{display:block; width:100%; text-align:left; border:1.5px solid #3a2e1c; background:transparent;
+    border-radius:4px; padding:7px 11px; font-family:'Special Elite',monospace; font-size:12px; color:#3a2e1c;
+    margin-top:8px; cursor:pointer}
+  .sel button.ghost{border-color:#9c8a6a; color:#5a4630}
+  .sel button:active{transform:scale(.98)}
+  .hint{max-width:960px; margin:10px auto 0; color:var(--cream); opacity:.7; font-size:11px; text-align:center}
+  .float{position:absolute; font-family:'Caveat',cursive; font-weight:700; font-size:15px; pointer-events:none;
+    animation:up 1.3s ease-out forwards; z-index:20; white-space:nowrap}
+  @keyframes up{to{transform:translateY(-26px); opacity:0}}
+  /* title masthead — the real chalkboard image; text is a live chalk overlay on the slate */
+  .masthead{position:relative; container-type:inline-size; width:100%; max-width:960px; aspect-ratio:2172 / 724;
+    margin:0 auto clamp(2px,1vw,6px); background:url("assets/desk/Masthead.png") center/100% 100% no-repeat}
+  .masthead .mh-text{position:absolute; left:6%; right:6%; top:7%; bottom:22%;
+    display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center}
+  .masthead .title{font-family:'Caveat',cursive; font-weight:600; font-size:6.6cqw; line-height:1.02; color:#f7f5ec;
+    text-shadow:0 1px 2px rgba(0,0,0,.45), 0 0 2px rgba(255,255,255,.25)}
+  .masthead .subtitle{font-family:'Caveat',cursive; font-size:2.8cqw; line-height:1.15; color:#e9f0e2; margin-top:1.2cqw;
+    text-shadow:0 1px 2px rgba(0,0,0,.4)}
+  /* how-to now lives on the chalkboard as the subtitle */
+  .masthead .apple{font-size:.6em; vertical-align:.14em; filter:drop-shadow(0 1px 1px rgba(0,0,0,.4))}
+  /* the calendar, pinned to the classroom wall */
+  .pad{position:relative}
+  .pad::before,.pad::after{position:absolute; top:2px; font-size:clamp(14px,3.6vw,20px); z-index:6; filter:drop-shadow(0 1px 1px rgba(0,0,0,.4))}
+  .pad::before{content:"📌"; left:6px}
+  .pad::after{content:"📌"; right:6px}
+  /* Tacky — the all-clear card */
+  .tacky{width:min(560px,94vw); text-align:center}
+  .tacky img{width:100%; display:block; border-radius:8px; box-shadow:0 16px 46px rgba(0,0,0,.5)}
+  .tacky button{margin-top:14px; border:1.5px solid #e8ddc2; background:rgba(20,14,8,.55); color:#e8ddc2;
+    border-radius:5px; padding:9px 16px; font-family:'Special Elite',monospace; font-size:12px; letter-spacing:.04em; cursor:pointer}
+  .tacky button:active{transform:scale(.98)}
+  .pin{width:46px; height:46px; margin:0 auto; position:relative}
+  .pin .head{display:block; width:32px; height:21px; background:#c0392b; border-radius:7px 7px 5px 5px; margin:0 auto; box-shadow:inset 0 -3px rgba(0,0,0,.18)}
+  .pin .neck{display:block; width:9px; height:7px; background:#9c2f20; margin:0 auto}
+  .pin .tip{display:block; width:0; height:0; border-left:5px solid transparent; border-right:5px solid transparent; border-top:13px solid #8f8f8f; margin:0 auto}
+  /* Queue Manager warning — a sticky slapped on your monitor */
+  .mgrnote{background:#f3ecd6; border:1px solid #c9b88f; border-radius:3px; box-shadow:0 12px 34px rgba(0,0,0,.5);
+    transform:rotate(-1.4deg); padding:18px 20px; width:min(330px,88vw); font-family:'Special Elite',monospace}
+  .mgrnote .mh{font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:#8a3a2a;
+    border-bottom:1px solid #c9b88f; padding-bottom:6px; margin-bottom:10px}
+  .mgrnote p{font-size:14px; line-height:1.5; color:#3a2e1c; margin:0 0 12px}
+  .mgrnote .mgrstat{font-size:10px; color:#8a3a2a; letter-spacing:.05em; margin-bottom:14px}
+  .mgrnote button{border:1.5px solid #3a2e1c; background:transparent; border-radius:4px; padding:7px 12px;
+    font-family:inherit; font-size:12px; color:#3a2e1c; cursor:pointer}
+  .mgrnote button:active{transform:scale(.98)}
+  /* Termination — the painterly GAME OVER card (static popup) */
+  .termcard{width:min(600px,94vw); text-align:center}
+  .termcard img{width:100%; display:block; border-radius:8px; box-shadow:0 18px 50px rgba(0,0,0,.65)}
+  .termcard button{margin-top:14px; border:1.5px solid #e8ddc2; background:rgba(20,14,8,.55); color:#e8ddc2;
+    border-radius:5px; padding:9px 16px; font-family:'Special Elite',monospace; font-size:12px; letter-spacing:.04em; cursor:pointer}
+  .termcard button:active{transform:scale(.98)}
+  /* power-up stickies — spend FIXED on a little relief */
+  .shop{display:flex; flex-wrap:wrap; gap:clamp(6px,2vw,12px); justify-content:center; margin:clamp(10px,3vw,16px) auto 0; max-width:960px}
+  .sticky{background:#f2df84; border-radius:2px; box-shadow:2px 3px 6px rgba(0,0,0,.35); transform:rotate(-1.5deg);
+    padding:9px 12px; width:min(190px,44vw); font-family:'Special Elite',monospace; cursor:pointer; text-align:center; transition:transform .1s}
+  .sticky:nth-child(2){transform:rotate(1.2deg); background:#efd97a}
+  .sticky:nth-child(3){transform:rotate(-0.6deg)}
+  .sticky b{display:block; font-size:11px; color:#5a4a20; line-height:1.25; margin-bottom:4px}
+  .sticky .eff{display:block; font-size:9px; color:#7a6636; letter-spacing:.03em; margin-bottom:6px; line-height:1.3}
+  .sticky .cost{display:block; font-size:11px; font-weight:bold; color:#9a8a6a}
+  .sticky.afford .cost{color:#8a3a2a}
+  .sticky.owned{background:#cfe0b0; cursor:default}
+  .sticky.owned .cost{color:#4a5a35}
+  .sticky:active{transform:scale(.97)}
+  /* welcome / title screen */
+  .welcome{width:min(560px,94vw); text-align:center}
+  .welcome img{width:100%; display:block; border-radius:10px; box-shadow:0 18px 50px rgba(0,0,0,.6)}
+  .welcome button{margin-top:16px; border:1.5px solid #e8ddc2; background:rgba(20,14,8,.55); color:#e8ddc2;
+    border-radius:6px; padding:11px 22px; font-family:'Special Elite',monospace; font-size:14px; letter-spacing:.06em; cursor:pointer}
+  .welcome button:active{transform:scale(.98)}
+  /* While You Were Out — recap card (matches the original beat) */
+  .recap{background:#f6ecd4; border:1px solid #c9b88f; border-radius:6px; box-shadow:0 12px 34px rgba(0,0,0,.55);
+    padding:20px 24px; width:min(340px,88vw); font-family:'Special Elite',monospace; color:#3a2e1c}
+  .recap .rh{font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:#8a3a2a;
+    border-bottom:1px solid #c9b88f; padding-bottom:6px; margin-bottom:12px}
+  .recap .rbig{text-align:center; margin-bottom:14px; font-size:15px; line-height:1.5}
+  .recap .rnum{font-size:38px; font-weight:700; display:inline-block; margin:2px 0}
+  .recap .rlabel{font-size:13px}
+  .recap .rstats{font-size:13px; line-height:1.7; margin-bottom:16px}
+  .recap button{border:1.5px solid #3a2e1c; background:transparent; border-radius:4px; padding:7px 14px;
+    font-family:inherit; font-size:12px; color:#3a2e1c; cursor:pointer}
+  .recap button:active{transform:scale(.98)}
+</style>
+</head>
+<body>
+  <div class="masthead">
+    <div class="mh-text">
+      <div class="title"><span class="apple">🍎</span> Homework Zero <span class="apple">🍎</span></div>
+      <div class="subtitle">How to Ace the Semester: Tap an Assignment to Turn It In, or Click a Sticky Note to Buy Yourself Some Time.</div>
+    </div>
+  </div>
+  <div class="pad">
+    <div class="header">
+      <span id="mlabel">Student Calendar</span>
+      <span class="right"><span id="dlabel">Day 1 of 30</span> &middot; <span id="newlabel">New 0</span></span>
+    </div>
+    <div class="board" style="position:relative">
+      <div class="dow"><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span></div>
+      <div class="cal" id="cal"></div>
+      <div class="footer"><span>Missing the due date &rarr; see Coach Story after class.</span><span id="esc">0</span></div>
+    </div>
+  </div>
+
+  <div class="hud">
+    <div class="tab"><div class="k">Due</div><div class="v" id="hOpen">0</div></div>
+    <div class="tab"><div class="k">On Time</div><div class="v" id="hFixed">0</div></div>
+    <div class="tab"><div class="k">Overdue</div><div class="v" id="hExp" style="color:#8a3a2a">0</div></div>
+    <div class="tab"><div class="k">Grade</div><div class="v face" id="hRep">🙂</div></div>
+    <div class="tab click" id="paceTab"><div class="k">Class Pace</div><div class="v" id="hPace" style="font-size:14px">wednesday</div></div>
+  </div>
+  <div class="shop">
+    <div class="sticky" data-up="slow"><b>"Substitute Teacher"</b><span class="eff">One fewer assignment per day</span><span class="cost"></span></div>
+    <div class="sticky" data-up="extend"><b>"Ask for an Extension"</b><span class="eff">New assignments due +2 days out</span><span class="cost"></span></div>
+    <div class="sticky" data-up="deflect"><b>"Group Project"</b><span class="eff">15% of new assignments become someone else's problem</span><span class="cost"></span></div>
+  </div>
+  <div class="hint"></div>
+
+  <div class="scrim" id="wscrim">
+    <div class="welcome">
+      <img src="assets/desk/WelcomeStory.png" alt="Welcome to Homework Zero — turn it in before Coach Story does">
+      <button id="btnWelcome">Start →</button>
+    </div>
+  </div>
+
+  <div class="scrim" id="rscrim">
+    <div class="recap">
+      <div class="rh">While You Were Absent</div>
+      <div class="rbig">You were out <b><span id="rGone"></span></b>.<br><span class="rnum" id="rArrived">0</span><br><span class="rlabel">assignments were assigned</span></div>
+      <div class="rstats">✓ <span id="rClosed">0</span> got excused while you were out<br>💀 <span id="rLate">0</span> are now missing (Coach Story noticed)</div>
+      <button id="btnRecap">Back to class →</button>
+    </div>
+  </div>
+
+  <div class="scrim" id="scrim">
+    <div class="sel" id="sel">
+      <h4 id="selText">—</h4>
+      <div class="meta" id="selMeta"></div>
+      <button id="btnFix">Turned In ✓ (+<span id="selReward">0</span> On Time)</button>
+      <button class="ghost" id="btnDefer">Ask for Extension +2 days (3 On Time)</button>
+      <button class="ghost" id="btnClose">Back to class</button>
+    </div>
+  </div>
+
+  <div class="scrim" id="tscrim">
+    <div class="tacky">
+      <img src="assets/desk/HappyStory.png" alt="All clear! No missing assignments — you've reached Homework Zero." loading="lazy">
+      <button id="btnTacky">Back to class →</button>
+    </div>
+  </div>
+
+  <div class="scrim" id="mgrscrim">
+    <div class="mgrnote">
+      <div class="mh">A note from Coach Story</div>
+      <p id="mgrMsg"></p>
+      <div class="mgrstat"><span id="mgrExp">0</span> missing assignments on your record</div>
+      <button id="btnMgr">Back to class →</button>
+    </div>
+  </div>
+
+  <div class="scrim" id="termscrim">
+    <div class="termcard">
+      <img src="assets/desk/SadStory.png" alt="Held Back — 1,000 missing assignments; Coach Story is sorry to see you go" loading="lazy">
+      <button id="btnTerm">Clean out your locker →</button>
+    </div>
+  </div>
+
+<script>
+(function(){
+  "use strict";
+  var DAYS=30;
+  var POOL=[["Read Chapter 7 — the Civil War.","U"],["Essay: causes of WWI (3 pages).","U"],["Boston Tea Party diorama.","R"],["Map of the Fertile Crescent.","R"],
+    ["The dog ate my homework.","R"],["POP QUIZ (no makeups).","S"],["Memorize the Gettysburg Address.","R"],
+    ["Circling back on that permission slip..","U"],["Timeline of the Cold War.","R"],["Steve forgot his textbook. Again.","R"],
+    ["Group project sign-up.","U"],["I emailed it, I swear.","R"],["Coach Story wants to see you.","S"],
+    ["Vocab: 20 terms, due Friday.","R"],["Field trip form (get it signed).","R"]];
+  var SEV={R:"HOMEWORK",U:"PROJECT",S:"EXAM"};
+  var REWARD={R:4,U:6,S:10};
+  var PACE={friday:[7000,1],wednesday:[4500,2],monday:[2500,3]};  // first-pass faster; all tunable
+  var MGR=[
+    {at:300, msg:"I'm seeing some missing assignments. That's a zero for now — but you're a good student, right?"},
+    {at:500, msg:"This is becoming a pattern. Pop quiz tomorrow. Maybe that refocuses you."},
+    {at:700, msg:"We've talked about this. Keep it up and you're looking at a final you can't afford to fail."},
+    {at:1000, terminate:true}
+  ];
+  var COSTS={slow:25,extend:40,deflect:60};
+  var SAVE="homework-zero-save";
+  var welcomeOpen=true;   // gated in boot: only shows on a first visit
+  var recapOpen=false, firstVisit=false, recap=null;
+
+  var S={tokens:[],day:1,month:1,ftr:15,LATE:0,REPUTATION:10,monthNew:0,escalatedMonth:0,paceMode:"wednesday",sel:null,tacky:false,mgrLevel:0,mgr:null,ts:0,upgrades:{slow:false,extend:false,deflect:false}};
+  var tick=null;
+
+  function rnd(n){return Math.floor(Math.random()*n);}
+  function mkToken(day, ext){
+    var p=POOL[rnd(POOL.length)], sev=p[1];
+    var base = sev==="S" ? 1+rnd(2) : sev==="U" ? 2+rnd(4) : 4+rnd(6);
+    return {id:Math.random(), due:Math.min(DAYS, day+base+(ext||0)), text:p[0], sev:sev};
+  }
+  function perDay(){return PACE[S.paceMode][1];}
+  function interval(){return PACE[S.paceMode][0];}
+
+  function fmtElapsed(ms){ var h=Math.floor(ms/3600000), m=Math.floor((ms%3600000)/60000);
+    return h ? (h+"h "+m+"m") : (m+" minute"+(m===1?"":"s")); }
+  function load(){
+    var s=null; try{s=JSON.parse(localStorage.getItem(SAVE));}catch(e){}
+    if(!s){ firstVisit=true; S.tokens=[mkToken(1),mkToken(1),mkToken(1)]; S.monthNew=3; return; }
+    var lastTs=s.ts||0;
+    for(var k in s){ if(S.hasOwnProperty(k)) S[k]=s[k]; }
+    S.tokens=(S.tokens||[]).map(function(t){return {id:t.id,due:Math.min(DAYS,t.due),text:t.text,sev:t.sev};});
+    var elapsed = lastTs ? (Date.now()-lastTs) : 0;
+    if(elapsed>90000){                                   // gone > ~90s → "while you were out"
+      var arrived=Math.min(Math.floor(elapsed/45000),40), late=Math.min(Math.floor(elapsed/300000),8), closed=Math.round(arrived*0.15);
+      for(var a=0;a<(arrived-closed) && S.tokens.length<16;a++){ S.tokens.push(mkToken(S.day, S.upgrades.extend?2:0)); }
+      S.monthNew+=arrived; S.LATE+=late; S.escalatedMonth+=late; S.REPUTATION=Math.max(-10,S.REPUTATION-late*2);
+      recap={gone:fmtElapsed(elapsed), arrived:arrived, closed:closed, late:late};
+    }
+  }
+  function save(){
+    S.ts=Date.now();
+    try{localStorage.setItem(SAVE,JSON.stringify(S));}catch(e){}
+  }
+
+  function repFace(v){return v>=16?"😄":v>=10?"🙂":v>=4?"😐":v>=0?"😟":v>=-5?"😨":"💀";}
+
+  function floatMsg(cell,text,color){
+    if(!cell) return;
+    var f=document.createElement("div"); f.className="float"; f.textContent=text; f.style.color=color;
+    f.style.left="6px"; f.style.top="2px"; cell.appendChild(f);
+    setTimeout(function(){ if(f.parentNode) f.parentNode.removeChild(f); },1300);
+  }
+
+  function dayTick(){
+    if(S.sel!==null || S.tacky || S.mgr!==null || welcomeOpen || recapOpen) return;   // pause while any card is open
+    var pd = S.upgrades.slow ? Math.max(1, perDay()-1) : perDay();
+    S.day++;
+    if(S.day>DAYS){ S.month++; S.day=1; S.monthNew=0; S.escalatedMonth=0;
+      S.tokens=S.tokens.map(function(t){return {id:t.id,due:2+rnd(10),text:t.text,sev:t.sev};}); }
+    var kept=[];
+    for(var i=0;i<S.tokens.length;i++){
+      var t=S.tokens[i];
+      if(t.due<S.day){ S.LATE++; S.escalatedMonth++; S.REPUTATION=Math.max(-10,S.REPUTATION-2); }
+      else kept.push(t);
+    }
+    for(var j=0;j<pd && kept.length<16;j++){
+      if(S.upgrades.deflect && Math.random()<0.15) continue;   // "escalating to…" — transfers away
+      kept.push(mkToken(S.day, S.upgrades.extend?2:0)); S.monthNew++;
+    }
+    S.tokens=kept;
+    checkManager();
+    save(); render();
+  }
+
+  function fixToken(t){
+    var r=REWARD[t.sev]||5;
+    S.tokens=S.tokens.filter(function(o){return o.id!==t.id;});
+    S.ftr+=r; S.REPUTATION=Math.min(20,S.REPUTATION+1); S.sel=null;
+    closeSel(); save(); render();
+    var cell=document.querySelector('[data-day="'+t.due+'"]');
+    floatMsg(cell,"Turned in ✓ +"+r,"#4a5a35");
+    if(S.tokens.length===0) showTacky();   // cleared the board by fixing → Tacky
+  }
+  function deferToken(t){
+    if(S.ftr<3) return;
+    S.ftr-=3;
+    S.tokens=S.tokens.map(function(o){return o.id===t.id?{id:o.id,due:Math.min(DAYS,o.due+2),text:o.text,sev:o.sev}:o;});
+    S.sel=null; closeSel(); save(); render();
+  }
+
+  // ---- rendering ----
+  var cal=document.getElementById("cal");
+  function render(){
+    document.getElementById("mlabel").textContent="Student Calendar";
+    document.getElementById("dlabel").textContent="Day "+S.day+" of "+DAYS;
+    document.getElementById("newlabel").textContent="New "+S.monthNew;
+    document.getElementById("esc").textContent=S.escalatedMonth;
+    document.getElementById("hOpen").textContent=S.tokens.length;
+    document.getElementById("hFixed").textContent=S.ftr;
+    document.getElementById("hExp").textContent=S.LATE;
+    document.getElementById("hRep").textContent=repFace(S.REPUTATION);
+    document.getElementById("hPace").textContent=S.paceMode;
+
+    // group tokens by due-day
+    var byDay={}; S.tokens.forEach(function(t){(byDay[t.due]=byDay[t.due]||[]).push(t);});
+
+    cal.innerHTML="";
+    for(var n=1;n<=35;n++){
+      var cell=document.createElement("div"); cell.className="cell"; cell.setAttribute("data-day",n);
+      var off=n>DAYS, col=(n-1)%7, weekend=col>=5, past=!off&&n<S.day, today=!off&&n===S.day;
+      if(off) cell.className+=" off"; else { if(weekend)cell.className+=" weekend"; if(past)cell.className+=" past"; if(today)cell.className+=" today"; }
+      var num=document.createElement("div"); num.className="num"; num.textContent=off?"":n; cell.appendChild(num);
+      if(today){ var tg=document.createElement("div"); tg.className="todaytag"; tg.textContent="today"; cell.appendChild(tg); }
+      if(byDay[n]){
+        var wrap=document.createElement("div"); wrap.className="cards";
+        byDay[n].forEach(function(t){
+          var dl=t.due-S.day, u=dl>=5?"u0":dl>=3?"u1":dl>=1?"u2":"u3";
+          var c=document.createElement("div"); c.className="card "+u; c.title=t.text;
+          var ln=document.createElement("div"); ln.className="lines"; c.appendChild(ln);
+          var fd=document.createElement("div"); fd.className="fold"; c.appendChild(fd);
+          c.onclick=(function(tok){return function(){ openSel(tok); };})(t);
+          wrap.appendChild(c);
+        });
+        cell.appendChild(wrap);
+      }
+      cal.appendChild(cell);
+    }
+    var sk=document.querySelectorAll('.sticky');
+    for(var si=0;si<sk.length;si++){ var el=sk[si], key=el.getAttribute('data-up'), owned=S.upgrades[key], cost=COSTS[key];
+      el.classList.toggle('owned',!!owned); el.classList.toggle('afford',!owned && S.ftr>=cost);
+      el.querySelector('.cost').textContent = owned ? "✓ active" : cost+" On Time";
+    }
+  }
+
+  // ---- selection panel ----
+  var scrim=document.getElementById("scrim");
+  function openSel(t){ S.sel=t.id;
+    document.getElementById("selText").textContent=t.text;
+    document.getElementById("selMeta").textContent=SEV[t.sev]+" · due day "+t.due;
+    document.getElementById("selReward").textContent=REWARD[t.sev]||5;
+    scrim.classList.add("on");
+  }
+  function closeSel(){ scrim.classList.remove("on"); }
+  function selectedToken(){ return S.tokens.filter(function(o){return o.id===S.sel;})[0]; }
+  document.getElementById("btnFix").onclick=function(){ var t=selectedToken(); if(t) fixToken(t); };
+  document.getElementById("btnDefer").onclick=function(){ var t=selectedToken(); if(t) deferToken(t); };
+  document.getElementById("btnClose").onclick=function(){ S.sel=null; closeSel(); };
+  document.getElementById("btnWelcome").onclick=function(){ welcomeOpen=false; document.getElementById("wscrim").classList.remove("on"); };
+
+  var rscrim=document.getElementById("rscrim");
+  function showRecap(){ recapOpen=true;
+    document.getElementById("rGone").textContent=recap.gone;
+    document.getElementById("rArrived").textContent=recap.arrived;
+    document.getElementById("rClosed").textContent=recap.closed;
+    document.getElementById("rLate").textContent=recap.late;
+    rscrim.classList.add("on");
+  }
+  document.getElementById("btnRecap").onclick=function(){ recapOpen=false; rscrim.classList.remove("on"); save(); render(); };
+  scrim.onclick=function(e){ if(e.target===scrim){ S.sel=null; closeSel(); } };
+
+  document.getElementById("paceTab").onclick=function(){
+    var order=["friday","wednesday","monday"], next=order[(order.indexOf(S.paceMode)+1)%3];
+    S.paceMode=next; restartTick(); save(); render();
+  };
+
+  var tscrim=document.getElementById("tscrim");
+  function showTacky(){ S.tacky=true; tscrim.classList.add("on"); save(); }
+  document.getElementById("btnTacky").onclick=function(){ S.tacky=false; tscrim.classList.remove("on"); save(); };
+
+  // ---- the Queue Manager (escalating warnings -> termination) ----
+  var mgrscrim=document.getElementById("mgrscrim");
+  var termscrim=document.getElementById("termscrim");
+  function checkManager(){
+    if(S.mgr!==null) return;
+    if(S.mgrLevel<MGR.length && S.LATE>=MGR[S.mgrLevel].at) showManager(S.mgrLevel);
+  }
+  function showManager(level){
+    S.mgr=level; var m=MGR[level];
+    if(m.terminate){ termscrim.classList.add("on"); }
+    else {
+      document.getElementById("mgrMsg").textContent=m.msg;
+      document.getElementById("mgrExp").textContent=S.LATE;
+      mgrscrim.classList.add("on");
+    }
+    save(); render();
+  }
+  document.getElementById("btnMgr").onclick=function(){
+    S.mgrLevel=S.mgr+1; S.mgr=null; mgrscrim.classList.remove("on"); save(); render();
+  };
+  document.getElementById("btnTerm").onclick=function(){ termscrim.classList.remove("on"); resetGame(); };
+  function resetGame(){
+    try{localStorage.removeItem(SAVE);}catch(e){}
+    S={tokens:[mkToken(1),mkToken(1),mkToken(1)],day:1,month:1,ftr:15,LATE:0,REPUTATION:10,
+       monthNew:3,escalatedMonth:0,paceMode:S.paceMode,sel:null,tacky:false,mgrLevel:0,mgr:null,ts:0,upgrades:{slow:false,extend:false,deflect:false}};
+    restartTick(); save(); render();
+  }
+  function buyUpgrade(k){ if(S.upgrades[k]||S.ftr<COSTS[k]) return; S.ftr-=COSTS[k]; S.upgrades[k]=true; save(); render(); }
+  Array.prototype.forEach.call(document.querySelectorAll('.sticky'), function(el){
+    el.onclick=function(){ buyUpgrade(el.getAttribute('data-up')); };
+  });
+
+  function restartTick(){ if(tick) clearInterval(tick); tick=setInterval(dayTick, interval()); }
+
+  // ---- boot ----
+  load();
+  if(firstVisit){ welcomeOpen=true; document.getElementById("wscrim").classList.add("on"); }
+  else { welcomeOpen=false; }
+  render(); restartTick();
+  if(!firstVisit && recap) showRecap();
+  setInterval(save,5000);
+  window.addEventListener("beforeunload",save);
+})();
+</script>
+</body>
+</html>
